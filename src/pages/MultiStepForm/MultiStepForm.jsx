@@ -7,8 +7,10 @@ import {
   Stepper,
   Step,
   StepLabel,
-
+  Input
 } from "@mui/material";
+import { toast } from 'react-toastify';
+
 
 const steps = [
   "Personal Information",
@@ -18,7 +20,7 @@ const steps = [
 ];
 
 const MultiStepForm = () => {
-  const api = process.env.REACT_APP_API
+  const api = process.env.REACT_APP_API;
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState({
     detailsOfProvider: {
@@ -61,13 +63,15 @@ const MultiStepForm = () => {
     const { name, value, type, files } = e.target;
 
     if (type === "file") {
+      const fileName = files[0] ? files[0].name : null;
+
       setFormData((prevState) => {
         const [step, field] = name.split(".");
         return {
           ...prevState,
           [step]: {
             ...prevState[step],
-            [field]: files[0],
+            [field]: fileName,
           },
         };
       });
@@ -117,24 +121,21 @@ const MultiStepForm = () => {
     }
 
     try {
-      console.log("this is data ",formData);
-      const response = await fetch(
-         `${api}adminRegister `,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Network response was not ok.");
-      }
+      console.log("this is data ", formData);
+      const response = await fetch(`${api}adminRegister`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
       const data = await response.json();
-
-      if (data.success) {
+         toast(data.message)
+      if (data.message === "Seller added successfully") {
+        const token = data.token;
+        console.log(data);
+        
+        console.log("this is token", token);
         console.log("Data successfully sent");
 
         setCurrentStep(0);
@@ -174,7 +175,8 @@ const MultiStepForm = () => {
         });
         setFormErrors({});
       } else {
-        alert("Something went wrong");
+         console.log("some thing went wrong");
+         
       }
     } catch (error) {
       console.error(error);
@@ -330,16 +332,6 @@ const MultiStepForm = () => {
                 InputLabelProps={{ style: { fontFamily: "lato" } }}
               />
             </Grid>
-            <Grid item xs={4}>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={nextStep}
-                sx={{ fontFamily: "lato" }}
-              >
-                Next
-              </Button>
-            </Grid>
           </Grid>
         )}
         {currentStep === 1 && (
@@ -348,14 +340,14 @@ const MultiStepForm = () => {
               <TextField
                 required
                 fullWidth
-                label="Provider Store Name"
+                label="Provider Name"
                 name="KYCdetails.providerName"
                 value={formData.KYCdetails.providerName}
                 onChange={handleChange}
                 error={Boolean(formErrors["KYCdetails.providerName"])}
                 helperText={
                   formErrors["KYCdetails.providerName"] &&
-                  "Provider Store Name is required"
+                  "Provider Name is required"
                 }
                 inputProps={{ style: { fontFamily: "lato" } }}
                 InputLabelProps={{ style: { fontFamily: "lato" } }}
@@ -365,14 +357,14 @@ const MultiStepForm = () => {
               <TextField
                 required
                 fullWidth
-                label="Register Address"
+                label="Registered Address"
                 name="KYCdetails.registeredAdd"
                 value={formData.KYCdetails.registeredAdd}
                 onChange={handleChange}
                 error={Boolean(formErrors["KYCdetails.registeredAdd"])}
                 helperText={
                   formErrors["KYCdetails.registeredAdd"] &&
-                  "Register Address is required"
+                  "Registered Address is required"
                 }
                 inputProps={{ style: { fontFamily: "lato" } }}
                 InputLabelProps={{ style: { fontFamily: "lato" } }}
@@ -382,14 +374,14 @@ const MultiStepForm = () => {
               <TextField
                 required
                 fullWidth
-                label="Email"
-                type="email"
+                label="Store Email"
                 name="KYCdetails.storeEmail"
                 value={formData.KYCdetails.storeEmail}
                 onChange={handleChange}
                 error={Boolean(formErrors["KYCdetails.storeEmail"])}
                 helperText={
-                  formErrors["KYCdetails.storeEmail"] && "Email is required"
+                  formErrors["KYCdetails.storeEmail"] &&
+                  "Store Email is required"
                 }
                 inputProps={{ style: { fontFamily: "lato" } }}
                 InputLabelProps={{ style: { fontFamily: "lato" } }}
@@ -416,12 +408,14 @@ const MultiStepForm = () => {
               <TextField
                 required
                 fullWidth
-                label="PAN"
+                label="PAN No"
                 name="KYCdetails.PANNo"
                 value={formData.KYCdetails.PANNo}
                 onChange={handleChange}
                 error={Boolean(formErrors["KYCdetails.PANNo"])}
-                helperText={formErrors["KYCdetails.PANNo"] && "PAN is required"}
+                helperText={
+                  formErrors["KYCdetails.PANNo"] && "PAN Number is required"
+                }
                 inputProps={{ style: { fontFamily: "lato" } }}
                 InputLabelProps={{ style: { fontFamily: "lato" } }}
               />
@@ -446,104 +440,86 @@ const MultiStepForm = () => {
               <TextField
                 required
                 fullWidth
-                label="FSSAI"
+                label="FSSAI No"
                 name="KYCdetails.FSSAINo"
                 value={formData.KYCdetails.FSSAINo}
                 onChange={handleChange}
                 error={Boolean(formErrors["KYCdetails.FSSAINo"])}
                 helperText={
-                  formErrors["KYCdetails.FSSAINo"] && "FSSAI is required"
+                  formErrors["KYCdetails.FSSAINo"] && "FSSAI Number is required"
                 }
                 inputProps={{ style: { fontFamily: "lato" } }}
                 InputLabelProps={{ style: { fontFamily: "lato" } }}
               />
             </Grid>
-            <Grid
-              item
-              xs={6}
-              sx={{ display: "flex", justifyContent: "flex-start" }}
-            >
-              <Button
-                variant="contained"
-                onClick={prevStep}
-                sx={{ fontFamily: "lato" }}
-              >
-                Previous
-              </Button>
-            </Grid>
-            <Grid
-              item
-              xs={6}
-              sx={{ display: "flex", justifyContent: "flex-end" }}
-            >
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={nextStep}
-                sx={{ fontFamily: "lato" }}
-              >
-                Next
-              </Button>
-            </Grid>
           </Grid>
         )}
         {currentStep === 2 && (
-          <Grid container spacing={5} sx={{ marginTop: 4 }}>
-            <Grid item xs={12}>
-              <p style={{ fontFamily: "lato" }}>Address Proof</p>
-              <input
+          <Grid container spacing={8} sx={{ marginTop: 4 }}>
+          <Grid item xs={12}>
+           <p>Address Proof</p>
+              <Input
                 type="file"
+                fullWidth
                 name="KYCurl.address"
                 onChange={handleChange}
+                error={Boolean(formErrors["KYCurl.address"])}
+                inputProps={{ style: { fontFamily: "lato" } }}
               />
+              {formErrors["KYCurl.address"] && (
+                <div style={{ color: "red" }}>Address proof is required</div>
+              )}
             </Grid>
             <Grid item xs={12}>
-              <p style={{ fontFamily: "lato" }}>ID Proof</p>
-              <input
+            <p>ID Proof</p>
+              <Input
                 type="file"
+                fullWidth
+                label="ID Proof"
                 name="KYCurl.idProof"
                 onChange={handleChange}
+                error={Boolean(formErrors["KYCurl.idProof"])}
+                helperText={
+                  formErrors["KYCurl.idProof"] && "ID proof is required"
+                }
+                inputProps={{ style: { fontFamily: "lato" } }}
+                InputLabelProps={{ style: { fontFamily: "lato" } }}
               />
             </Grid>
             <Grid item xs={12}>
-              <p style={{ fontFamily: "lato" }}>Pan Card Image</p>
-              <input type="file" name="KYCurl.pan" onChange={handleChange} />
+            <p>Pan Card Image</p>
+              <Input
+                type="file"
+                fullWidth
+                label="PAN"
+                name="KYCurl.pan"
+                onChange={handleChange}
+                error={Boolean(formErrors["KYCurl.pan"])}
+                helperText={formErrors["KYCurl.pan"] && "PAN card is required"}
+                inputProps={{ style: { fontFamily: "lato" } }}
+                InputLabelProps={{ style: { fontFamily: "lato" } }}
+              />
             </Grid>
             <Grid item xs={12}>
-              <p style={{ fontFamily: "lato" }}>GST Proof</p>
-              <input type="file" name="KYCurl.gst" onChange={handleChange} />
-            </Grid>
-            <Grid
-              item
-              xs={6}
-              sx={{ display: "flex", justifyContent: "flex-start" }}
-            >
-              <Button
-                variant="contained"
-                onClick={prevStep}
-                sx={{ fontFamily: "lato" }}
-              >
-                Previous
-              </Button>
-            </Grid>
-            <Grid
-              item
-              xs={6}
-              sx={{ display: "flex", justifyContent: "flex-end" }}
-            >
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={nextStep}
-                sx={{ fontFamily: "lato" }}
-              >
-                Next
-              </Button>
+            <p>GST Proof</p>
+              <Input
+                type="file"
+                fullWidth
+                label="GST"
+                name="KYCurl.gst"
+                onChange={handleChange}
+                error={Boolean(formErrors["KYCurl.gst"])}
+                helperText={
+                  formErrors["KYCurl.gst"] && "GST document is required"
+                }
+                inputProps={{ style: { fontFamily: "lato" } }}
+                InputLabelProps={{ style: { fontFamily: "lato" } }}
+              />
             </Grid>
           </Grid>
         )}
         {currentStep === 3 && (
-          <Grid container spacing={4} sx={{ marginTop: 4 }}>
+          <Grid container spacing={2} sx={{ marginTop: 4 }}>
             <Grid item xs={12}>
               <TextField
                 required
@@ -628,43 +604,44 @@ const MultiStepForm = () => {
               />
             </Grid>
             <Grid item xs={12}>
-              <p style={{ fontFamily: "lato" }}>Cancelled Cheque</p>
-              <input
+            <p>Cancelled Cheque</p>
+              <Input
                 type="file"
+                fullWidth
+                label="Cancelled Cheque"
                 name="bankDetails.cancelledChequeURL"
                 onChange={handleChange}
+                error={Boolean(formErrors["bankDetails.cancelledChequeURL"])}
+                helperText={
+                  formErrors["bankDetails.cancelledChequeURL"] &&
+                  "Cancelled Cheque is required"
+                }
+                inputProps={{ style: { fontFamily: "lato" } }}
+                InputLabelProps={{ style: { fontFamily: "lato" } }}
               />
-            </Grid>
-
-            <Grid
-              item
-              xs={6}
-              sx={{ display: "flex", justifyContent: "flex-start" }}
-            >
-              <Button
-                variant="contained"
-                onClick={prevStep}
-                sx={{ fontFamily: "lato" }}
-              >
-                Previous
-              </Button>
-            </Grid>
-            <Grid
-              item
-              xs={6}
-              sx={{ display: "flex", justifyContent: "flex-end" }}
-            >
-              <Button
-                type="submit"
-                variant="contained"
-                color="primary"
-                sx={{ fontFamily: "lato" }}
-              >
-                Submit
-              </Button>
             </Grid>
           </Grid>
         )}
+        <Grid container spacing={2} sx={{ marginTop: 4 }}>
+          <Grid item xs={6}>
+            {currentStep > 0 && (
+              <Button variant="contained" color="primary" onClick={prevStep}>
+                Back
+              </Button>
+            )}
+          </Grid>
+          <Grid item xs={6} textAlign="right">
+            {currentStep < steps.length - 1 ? (
+              <Button variant="contained" color="primary" onClick={nextStep}>
+                Next
+              </Button>
+            ) : (
+              <Button variant="contained" color="primary" type="submit">
+                Submit
+              </Button>
+            )}
+          </Grid>
+        </Grid>
       </form>
     </Container>
   );
