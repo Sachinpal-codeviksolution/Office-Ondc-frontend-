@@ -80,6 +80,7 @@ export default function ProfileMenu() {
         <MenuItem onClick={handleClose}>
           <Avatar /> My account
         </MenuItem>
+        
         <Divider />
         <MenuItem onClick={handleClose}>
           <ListItemIcon>

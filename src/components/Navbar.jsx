@@ -13,20 +13,20 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 import MailIcon from "@mui/icons-material/Mail";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import MoreIcon from "@mui/icons-material/MoreVert";
-import { useAppStore } from "../AppStore";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { useEffect, useState } from "react"
 import { jwtDecode } from "jwt-decode";
+import useAppStore from "../AppStore";
+
 const AppBar = styled(MuiAppBar)(({ theme }) => ({
   backgroundColor: "#1976d2",
   zIndex: theme.zIndex.drawer + 1,
 }));
 
 export default function Navbar() {
-  
-
-  const navigate = useNavigate(); 
+  const api = process.env.REACT_APP_API
+  const navigate = useNavigate();  
   const [decodeToken,setDecodeToken]= useState([])
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
@@ -42,6 +42,7 @@ export default function Navbar() {
   const token = Cookies.get('token')
   setDecodeToken(jwtDecode(token))
  },[])
+ 
  const {email_id}=decodeToken
 
  
@@ -51,7 +52,9 @@ export default function Navbar() {
   
   try {
     const token = Cookies.get("token");
-    const response = await fetch("https://stage.ramonize.com/dashboard/logout", {
+    // const response = await fetch("https://stage.ramonize.com/dashboard/logout",
+      const response = await fetch(`${api}logout` 
+        ,{
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -73,9 +76,6 @@ export default function Navbar() {
     console.error("Logout error:", error);
   }
 };
-
- 
-
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -238,6 +238,8 @@ export default function Navbar() {
               onClick={handleMobileMenuOpen}
               color="inherit"
             >
+            
+            
               <MoreIcon />
             </IconButton>
           </Box>

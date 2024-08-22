@@ -1,11 +1,10 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import Login from './pages/Login';
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+// import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import { useAuth } from './store/AuthContext';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
-
 import Order from './pages/Order';
 import Settings from './pages/Settings';
 import Complaints from './pages/Complaints';
@@ -17,21 +16,28 @@ import CancelOrder from './pages/CancelOrder';
 import ReturnOrder from './pages/ReturnOrder';
 import Register from './pages/Register';
 import BarChart from './components/Chart/BarChart';
-import Inventroy  from './pages/Inventroy';
+import Inventory from './pages/AddProductPage/Inventroy';
+import AddProductTwo from './pages/AddProductPage/AddProductTwo';
+import AdminLogin from './pages/AdminLogin';
+import AddProductPage from './pages/AddProductPage/AddProductPage';
 function App() {
-  const { isAuthenticated } = useAuth();
-
+  const  {isAuthenticated }= useAuth();
   return (
-    <Router>
-      <div className="App">
+    <div className="App">
+      <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Login />} />
+      
+          {/* <Route path="/" element={<Login />} /> */}
+          <Route path="/" element={<AdminLogin/>} />
+      
+       
+           
           {isAuthenticated ? (
             <>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/navbar" element={<Navbar />} />
               <Route path="/sidebar" element={<Sidebar />} />
-              <Route path="/inventory" element={<Inventroy />} />
+              <Route path="/inventory" element={<Inventory />} />
               <Route path="/order" element={<Order />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/complaints" element={<Complaints />} />
@@ -43,14 +49,16 @@ function App() {
               <Route path="/return-order" element={<ReturnOrder />} />
               <Route path="/register" element={<Register />} />
               <Route path="/barchart" element={<BarChart />} />
+              <Route path="/addProductpage" element={<AddProductPage/>} />
+              <Route path="/addProductTwo" element={<AddProductTwo/>} />
+    
             </>
           ) : (
-          
             <Route path="*" element={<Link to="/" />} />
           )}
         </Routes>
-      </div>
-    </Router>
+      </BrowserRouter>
+    </div>
   );
 }
 

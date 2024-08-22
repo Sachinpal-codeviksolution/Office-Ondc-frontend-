@@ -1,6 +1,5 @@
 import React from 'react';
 import { Button as MUIButton, Typography, Grid } from '@mui/material';
-
 const ButtonComponent = () => {
     return (
         <div className="bg-gray-100 p-8 h-screen">
@@ -30,5 +29,4 @@ const ButtonComponent = () => {
         </div>
     );
 };
-
 export default ButtonComponent;

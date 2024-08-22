@@ -50,7 +50,7 @@ export default function RegistrationPage() {
     const jsonData = { first_name, last_name, email_id, password, role };
 
     try {
-      const response = await fetch("https://stage.ramonize.com/dashboard/Register", {
+      const response = await fetch(`${process.env.REACT_APP_API}Register`,{
         method: "POST",
         headers: {
           "Content-Type": "application/json"

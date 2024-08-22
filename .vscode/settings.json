@@ -1,0 +1,6 @@
+{
+    "explorer.compactFolders": true,
+    "explorer.confirmDelete": false,
+    "explorer.confirmPasteNative": true,
+    "explorer.confirmUndo": "default"
+}

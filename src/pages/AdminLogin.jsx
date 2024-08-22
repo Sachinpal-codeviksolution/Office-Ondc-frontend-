@@ -40,9 +40,8 @@ function reducer(state, action) {
       return state;
   }
 } 
-export default function Login() {
-  const api = process.env.REACT_APP_API
-  const [email_id, setEmail_id] = useState("");
+export default function AdminLogin() {
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState(""); 
   const [state, dispatch] = useReducer(reducer, initialState);
   const { error, loading } = state;
@@ -53,17 +52,19 @@ export default function Login() {
     e.preventDefault();
     dispatch({ type: "REQUEST_LOGIN" });
     try {
+        console.log("api hit ")
       let response = await fetch(
-        `${api}login`,
+        `http://localhost:8080/dashboard/adminLogin`,
         {
           method: "post",
           headers: {
             "content-type": "application/json",
           },
-          body: JSON.stringify({ email_id, password }),
+          body: JSON.stringify({ email, password }),
         }
       );
       response = await response.json();
+      console.log("after hitting api ")
       console.log("response", response);
       if (response.success === true) {
         dispatch({ type: "LOGIN_SUCCESS", payload: response.data });
@@ -72,7 +73,6 @@ export default function Login() {
         Cookies.set("token", token, { expires: 7, secure: true });
         login();
         navigate("/dashboard");
-     
       } else {
         toast.error(response.message)
         dispatch({ type: "LOGIN_ERROR", error: response.message });
@@ -119,8 +119,8 @@ export default function Login() {
             label="Email"
             type="email"
             variant="outlined"
-            value={email_id}
-            onChange={(e) => setEmail_id(e.target.value)}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             fullWidth
             margin="normal"
             required

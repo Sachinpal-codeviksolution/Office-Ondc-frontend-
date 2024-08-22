@@ -14,69 +14,75 @@ import {
   Typography
 } from '@mui/material';
 import Cookies from "js-cookie";
+import { useNavigate } from 'react-router-dom';
 
 const AddProductTwo = () => {
   const [formData, setFormData] = useState({
-    productCode: '',
-    productName: '',
-    HSNCode: '',
-    timing: [],
-    fulfillmentId: '',
-    fulfillmentOption: '',
-    GST_Percentage: "",
-    productCategory: '',
-    productSubCategory1: '',
-    productSubCategory2: '',
-    productSubCategory3: '',
-    maxAllowedQty: "",
-    countryOfOrigin: '',
-    packQty: "",
-    UOM: '',
-    UOMValue: '',
-    length: '',
-    breadth: '',
-    height: '',
-    weight: '',
-    isReturnable: '',
-    returnWindow: '',
-    isVegetarian: '',
-    manufactureName: '',
-    manufactureDate: '',
-    nutritionalInfo: '',
-    additiveInfo: '',
-    instructions: '',
-    isCancellable: '',
-    availableOnCOD: '',
-    longDescription: '',
-    description: '',
-    manufactureOrPackerName: '',
-    manufactureOrPackerAddress: '',
-    commonOrGenericNameOfCommodity: '',
-    monthYearOfManufacturePackingImport: '',
-    importFSSAILicenseNo: '',
-    brandOwnerFSSAILicenseNo: '',
-    quantity: "",
-    MRP: "",
-    purchasePrice: "",
-    barcode: "",
-    images: null,  // Changed to null for file input
-    vegNonVeg: ''
+    commonDetails:{
+      productCode: '',
+      productName: '',
+      HSNCode: '',
+      timing:[],
+      fulfillmentId: '',
+      fulfillmentOption: '',
+      GST_Percentage: "",
+      productCategory: '',
+      productSubCategory1: '',
+      productSubCategory2: '',
+      productSubCategory3: '',
+      maxAllowedQty: "",
+      countryOfOrigin: '',
+      packQty: "",
+      UOM: '',
+      UOMValue: '',
+      length: '',
+      breadth: '',
+      height: '',
+      weight: '',
+      isReturnable: '',
+      returnWindow: '',
+      isVegetarian: '',
+      manufactureName: '',
+      manufactureDate: '',
+      nutritionalInfo: '',
+      additiveInfo: '',
+      instructions: '',
+      isCancellable: '',
+      availableOnCOD: '',
+      longDescription: '',
+      description: '',
+      manufactureOrPackerName: '',
+      manufactureOrPackerAddress: '',
+      commonOrGenericNameOfCommodity: '',
+      monthYearOfManufacturePackingImport: '',
+      importFSSAILicenseNo: '',
+      brandOwnerFSSAILicenseNo: '',
+      quantity: "",
+      MRP: "",
+      purchasePrice: "",
+      barcode: "",
+      images: "",  
+      vegNonVeg: ''
+    }  
   });
 
+  const navigate = useNavigate('')
   const handleChange = (e) => {
-    const { name, value, type, files } = e.target;
-    if (type === 'file') {
-      setFormData({
-        ...formData,
-        [name]: files[0] || null  // Store the file object or null if no file selected
-      });
-    } else {
-      setFormData({
-        ...formData,
-        [name]: value
-      });
-    }
-  };
+  const { name, value, type, files } = e.target;
+  
+  if (type === 'file') {
+   
+    setFormData(prevFormData => ({
+      ...prevFormData,
+      [name]: files[0]?.name || null  
+    }));
+  } else {
+    setFormData(prevFormData => ({
+      ...prevFormData,
+      [name]: value
+    }));
+  }
+};
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -88,13 +94,15 @@ const AddProductTwo = () => {
         formDataToSend.append(key, formData[key]);
       }
     });
-
+ 
     try {
       const token = Cookies.get("token");
+        console.log(token);
+        
       const response = await fetch("http://localhost:8080/product/ProductCreate", {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${token}`
+          "authorization": `${token}`
         },
         body: formDataToSend
       });
@@ -115,7 +123,7 @@ const AddProductTwo = () => {
   return (
     <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <div style={{ marginBottom: '16px' }}>
-        <Button variant="contained" color="primary">Back</Button>
+        <Button variant='outlined'   onClick={()=>navigate('/inventory')}>Back</Button>
       </div>
       <div style={{ marginBottom: '16px' }}>
         <Typography variant="h6">Add Product</Typography>
@@ -123,16 +131,10 @@ const AddProductTwo = () => {
       <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <Button
           variant="outlined"
-          color="secondary"
+          color="primary"
           style={{ marginRight: '16px' }}
         >
           PRODUCT INFO
-        </Button>
-        <Button
-          variant="contained"
-          color="primary"
-        >
-          VITAL INFO
         </Button>
       </div>
 
@@ -543,9 +545,28 @@ const AddProductTwo = () => {
           </Grid>
           <Grid item xs={12} sm={6}>
             <TextField
+              label="timing"
+              name="timing"
+              value={formData.timing}
+              onChange={handleChange}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
               label="Breadth"
               name="breadth"
               value={formData.breadth}
+              onChange={handleChange}
+              fullWidth
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
+            <TextField
+              label="full fillment Options "
+              name="fulfillmentOption"
+              value={formData.fulfillmentOption}
               onChange={handleChange}
               fullWidth
             />
@@ -681,7 +702,7 @@ const AddProductTwo = () => {
               label="Long Description"
               name="longDescription"
               multiline
-              rows={4}
+              rows={2}
               value={formData.longDescription}
               onChange={handleChange}
               fullWidth
@@ -692,7 +713,7 @@ const AddProductTwo = () => {
               label="Description"
               name="description"
               multiline
-              rows={4}
+              rows={2}
               value={formData.description}
               onChange={handleChange}
               fullWidth
@@ -734,6 +755,20 @@ const AddProductTwo = () => {
               fullWidth
             />
           </Grid>
+     
+          {/* <Grid item xs={12}>
+          <TextField
+            fullWidth
+            required
+            name="monthYear"
+            label="Month Year Of Manufacture Packing Import"
+            placeholder="MM/YYYY"
+            value={formData.monthYearOfManufacturePackingImport}
+            onChange={handleChange}
+            InputLabelProps={{ shrink: true }}
+          />
+        </Grid> */}
+          
           <Grid item xs={12}>
             <TextField
               label="Import FSSAI License No"

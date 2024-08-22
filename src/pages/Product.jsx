@@ -11,7 +11,7 @@ export default function  Product() {
     <div>
     <Box component="main" sx={{ flexGrow: 1, p: 3 }}>  
     <h1>This is Product page </h1>
-
+    
       </Box>
     </div>
     </Box>

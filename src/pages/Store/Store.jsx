@@ -1,4 +1,6 @@
 import { useState } from "react";
+import React from 'react'
+
 import {
   Container,
   Grid,
@@ -9,9 +11,11 @@ import {
   FormControl,
   FormLabel,
   Typography,
+  Button,
 } from "@mui/material";
 import FormGroup from "@mui/material/FormGroup";
 import Checkbox from "@mui/material/Checkbox";
+import StoreTiming from "../../components/StoreTiming/StoreTiming";
 export default function Store() {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -157,8 +161,6 @@ export default function Store() {
           />
         </Grid>
       )}
-    
-
             <Grid item xs={12}>
               <FormControl component="fieldset">
                 <FormLabel component="legend">
@@ -411,11 +413,11 @@ export default function Store() {
         </>
       ) : null}
             </Grid>
-            <Typography variant="h4" gutterBottom textAlign="center">
-            Store Timing
-            </Typography>
-            
+              <Grid>
+                <StoreTiming/>
+              </Grid>            
           </Grid>
+          <Button type="submit" variant="contained" >Update</Button>
         </form>
       </Container>
     </>

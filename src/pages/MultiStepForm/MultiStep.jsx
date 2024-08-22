@@ -10,9 +10,8 @@ import {
   FormControlLabel,
   Grid,
 } from '@mui/material';
-
+import axios from 'axios';
 const steps = ['Provider Details', 'KYC Details', 'KYC URLs', 'Bank Details'];
-
 const MultiStep = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [formData, setFormData] = useState({
@@ -70,11 +69,12 @@ const MultiStep = () => {
     const [section, field] = name.split('.');
 
     if (type === 'file') {
+      const fileName = files[0] ? files[0].name : null;
       setFormData(prevData => ({
         ...prevData,
         [section]: {
           ...prevData[section],
-          [field]: files[0], 
+          [field]: fileName, 
         },
       }));
     } else {
@@ -134,6 +134,8 @@ const MultiStep = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log(formData);
+    
     const stepErrors = validateStep(activeStep);
     if (Object.keys(stepErrors).length === 0) {
       try {
@@ -143,61 +145,60 @@ const MultiStep = () => {
             formDataToSend.append(`${key}[${subKey}]`, formData[key][subKey]);
           }
         }
-
-        const response = await fetch("https://stage.ramonize.com/dashboard/adminRegister", {
-          method: "POST",
-          body: formDataToSend,
-        });
-
-        if (!response.ok) {
-          throw new Error('Network response was not ok.');
-        }
-        
-        const data = await response.json();
-        const token = data.token;
-        console.log(token)
-
-        if (data) {
-          console.log("Data successfully sent", data);
-          alert("Data successfully submitted!");
-          setActiveStep(0); 
-          setFormData({
-            detailsOfProvider: {
-              email: '',
-              mobileNumber: '',
-              Orgname: '',
-              password: '',
-              role: '',
-              accessStatus: false,
-              isApprovedByAdmin: false,
-            },
-            KYCdetails: {
-              providerName: '',
-              registeredAdd: '',
-              storeEmail: '',
-              mobileNo: '',
-              PANNo: '',
-              GSTIN: '',
-              FSSAINo: '',
-            },
-            KYCurl: {
-              address: '',
-              idProof: '',
-              pan: '',
-              gst: '',
-            },
-            bankDetails: {
-              accountHolderName: '',
-              accountNo: '',
-              bankName: '',
-              branchName: '',
-              ifscCode: '',
-              cancelledChequeURL: '',
+   
+        const response = await axios.post(
+            "https://stage.ramonize.com/dashboard/adminRegister",
+            formData,
+            {
+              headers: {
+                'Content-Type': 'application/json'
+              }
             }
-          });
-        } else {
-          alert("Something went wrong");
-        }
+          );
+          alert(response.message)
+          if (response.message === "Seller added successfully") {
+            console.log(response.data);  
+            const token = response.token
+            const message = response.data.message
+            console.log(token);          
+            console.log(message);       
+              console.log("success"); 
+              setFormData({
+                detailsOfProvider: {
+                  email: '',
+                  mobileNumber: '',
+                  Orgname: '',
+                  password: '',
+                  role: '',
+                  accessStatus: false,
+                  isApprovedByAdmin: false,
+                },
+                KYCdetails: {
+                  providerName: '',
+                  registeredAdd: '',
+                  storeEmail: '',
+                  mobileNo: '',
+                  PANNo: '',
+                  GSTIN: '',
+                  FSSAINo: '',
+                },
+                KYCurl: {
+                  address: '',
+                  idProof: '',
+                  pan: '',
+                  gst: '',
+                },
+                bankDetails: {
+                  accountHolderName: '',
+                  accountNo: '',
+                  bankName: '',
+                  branchName: '',
+                  ifscCode: '',
+                  cancelledChequeURL: '',
+                }
+              });
+          }
+    
       } catch (error) {
         console.error("Error submitting data:", error);
         alert("An error occurred while submitting the form.");
