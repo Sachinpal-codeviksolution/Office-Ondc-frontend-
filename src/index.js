@@ -14,7 +14,7 @@ import 'react-toastify/dist/ReactToastify.css';
 // import Productt from './Backup/Productt';
 // import Datee from './Backup/Datee';
 
-
+// import Avatars from './components/Avatars'
 // import Multis from './pages/MultiStepForm/Multis';
 // import MultiStepForm from './pages/MultiStepForm/MultiStepForm';
 // import MultiStep from './pages/MultiStepForm/MultiStep';
@@ -25,7 +25,7 @@ import 'react-toastify/dist/ReactToastify.css';
 //  import FormData from './Backup/FormData';
 // import Customize from './pages/AddProductPage/Customize'
 
-
+//  import StoreTiming from './components/StoreTiming/StoreTiming';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -47,7 +47,9 @@ root.render(
       {/* <FrontPage/> */}
      {/* <FormData/> */}
       {/* <Customize/> */}
+      {/* <Avatars/> */}
 
+     {/* <StoreTiming/> */}
       <ToastContainer />
       <ToastContainer
         position="top-center"

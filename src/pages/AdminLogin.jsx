@@ -1,5 +1,5 @@
 import React, { useReducer, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, Link as RouterLink, useNavigate } from 'react-router-dom';
 import Cookies from "js-cookie";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
@@ -7,7 +7,8 @@ import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useAuth } from "../store/AuthContext";
 import Alertt from "../components/Alert/Alertt";
-import { toast } from 'react-toastify';
+import { toast } from "react-toastify";
+import { Grid } from "@mui/material";
 
 const initialState = {
   data: null,
@@ -39,10 +40,10 @@ function reducer(state, action) {
     default:
       return state;
   }
-} 
+}
 export default function AdminLogin() {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState(""); 
+  const [password, setPassword] = useState("");
   const [state, dispatch] = useReducer(reducer, initialState);
   const { error, loading } = state;
   const navigate = useNavigate();
@@ -52,29 +53,26 @@ export default function AdminLogin() {
     e.preventDefault();
     dispatch({ type: "REQUEST_LOGIN" });
     try {
-        console.log("api hit ")
-      let response = await fetch(
-        `http://localhost:8080/dashboard/adminLogin`,
-        {
-          method: "post",
-          headers: {
-            "content-type": "application/json",
-          },
-          body: JSON.stringify({ email, password }),
-        }
-      );
+      console.log("api hit ");
+      let response = await fetch(`http://localhost:8080/dashboard/adminLogin`, {
+        method: "post",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
       response = await response.json();
-      console.log("after hitting api ")
+      console.log("after hitting api ");
       console.log("response", response);
       if (response.success === true) {
         dispatch({ type: "LOGIN_SUCCESS", payload: response.data });
-        toast.success(response.message)
+        toast.success(response.message);
         const token = response.token;
         Cookies.set("token", token, { expires: 7, secure: true });
         login();
         navigate("/dashboard");
       } else {
-        toast.error(response.message)
+        toast.error(response.message);
         dispatch({ type: "LOGIN_ERROR", error: response.message });
       }
     } catch (error) {
@@ -113,7 +111,6 @@ export default function AdminLogin() {
               {error}
             </Alertt>
           )}
-      
 
           <TextField
             label="Email"
@@ -145,12 +142,16 @@ export default function AdminLogin() {
             sx={{ mt: 2 }}
             disabled={loading}
           >
-            {loading ? (
-              <CircularProgress size={24} color="warning" />
-            ) : (
-              "Login"
-            )}
+            {loading ? <CircularProgress size={24} color="warning" /> : "Login"}
           </Button>
+          <Grid container justifyContent="flex-end">
+            <Grid item sx={{fontFamily:"Lato"}}>
+              <Link component={RouterLink} to="/multistepform" variant="body2">
+                {"Don't have an account? Sign Up"}
+              </Link>
+            
+            </Grid>
+          </Grid>
         </Box>
       </Box>
     </>

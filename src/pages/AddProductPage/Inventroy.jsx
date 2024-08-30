@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Button,
   Box,
@@ -30,6 +30,8 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import MenuIcon from "@mui/icons-material/Menu";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
+
 
 const theme = createTheme({
   palette: {
@@ -39,43 +41,47 @@ const theme = createTheme({
   },
 });
 
-const initialData = [
-  {
-    id: 1,
-    name: "jksndf",
-    type: "customization",
-    quantity: 3,
-    price: 454,
-    cancellable: "-",
-    returnable: "-",
-    customization: "-",
-    published: "Yes",
-  },
-  {
-    id: 2,
-    name: "daal",
-    type: "item",
-    quantity: 2,
-    price: 58,
-    cancellable: "No",
-    returnable: "No",
-    customization: "-",
-    published: "Yes",
-  },
-
-];
-
 function Inventory() {
   const [productCategory, setProductCategory] = useState("");
   const [checked, setChecked] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredData, setFilteredData] = useState(initialData);
-  const navigate = useNavigate();
-  
+  const [filteredData, setFilteredData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Function to fetch product data from API
+    const fetchData = async () => {
+      try {
+        const token = Cookies.get("token");
+        console.log('token at line no. 60 in inventory.jsx :', token)
+        const response = await fetch("http://localhost:8080/product/products", {
+          headers: {
+            "authorization": `${token}` // Replace with actual token
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        const data = await response.json();
+        console.log(data)
+        setFilteredData(data);
+        setLoading(false);
+      } catch (error) {
+        setError(error.message);
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handleCategoryChange = (event) => {
     setProductCategory(event.target.value);
@@ -99,7 +105,7 @@ function Inventory() {
 
   // Filter data based on search and category
   const handleFilter = () => {
-    let data = initialData;
+    let data = filteredData;
 
     if (searchQuery) {
       data = data.filter((item) =>
@@ -125,8 +131,31 @@ function Inventory() {
     setSearchQuery("");
     setProductCategory("");
     setChecked(false);
-    setFilteredData(initialData);
-    setPage(0); // Reset to the first page after reset
+    // Fetch fresh data after reset
+    const fetchData = async () => {
+      const token = Cookies.get("token");
+      console.log('token at line no. 136 in inventory.jsx :', token)
+      try {
+        const response = await fetch("http://localhost:8080/product/products", {
+          headers: {
+            "Authorization": `${token}` // Replace with actual token
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        const data = await response.json();
+        console.log(data)
+        setFilteredData(data);
+        setPage(0); // Reset to the first page after reset
+      } catch (error) {
+        setError(error.message);
+      }
+    };
+
+    fetchData();
   };
 
   // Handle page change
@@ -145,6 +174,23 @@ function Inventory() {
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
   );
+
+  if (loading) {
+    // return <Typography>Loading...</Typography>;
+    return <Typography style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: '100vh',
+      margin: 0
+    }}>
+      Loading...
+    </Typography>;
+  }
+
+  if (error) {
+    return <Typography>Error: {error}</Typography>;
+  }
 
   return (
     <div className="">
@@ -270,7 +316,7 @@ function Inventory() {
                     <TableCell style={{ color: "white" }}>
                       Product Name
                     </TableCell>
-                    <TableCell style={{ color: "white" }}>Type</TableCell>
+                    {/* <TableCell style={{ color: "white" }}>Type</TableCell> */}
                     <TableCell style={{ color: "white" }}>Quantity</TableCell>
                     <TableCell style={{ color: "white" }}>
                       Purchase Price
@@ -279,9 +325,7 @@ function Inventory() {
                       Cancellable
                     </TableCell>
                     <TableCell style={{ color: "white" }}>Returnable</TableCell>
-                    <TableCell style={{ color: "white" }}>
-                      Customization
-                    </TableCell>
+                    {/* <TableCell style={{ color: "white" }}>Customization</TableCell> */}
                     <TableCell style={{ color: "white" }}>Published</TableCell>
                     <TableCell style={{ color: "white" }}>Action</TableCell>
                   </TableRow>
@@ -289,14 +333,15 @@ function Inventory() {
                 <TableBody>
                   {paginatedData.map((row) => (
                     <TableRow key={row.id}>
-                      <TableCell>{row.name}</TableCell>
-                      <TableCell>{row.type}</TableCell>
+                      <TableCell>{row.productName}</TableCell>
+                      {/* <TableCell>{row.type}</TableCell> */}
                       <TableCell>{row.quantity}</TableCell>
-                      <TableCell>{row.price}</TableCell>
-                      <TableCell>{row.cancellable}</TableCell>
-                      <TableCell>{row.returnable}</TableCell>
-                      <TableCell>{row.customization}</TableCell>
-                      <TableCell>{row.published}</TableCell>
+                      {/* <TableCell>{row.purchasePrice}</TableCell> */}
+                      <TableCell>&#8377;&nbsp;{row.purchasePrice}</TableCell>
+                      <TableCell>{row.isCancellable?'Yes':'NO'}</TableCell>
+                      <TableCell>{row.isReturnable?'Yes':'NO'}</TableCell>
+                      {/* <TableCell>{row.customization}</TableCell> */}
+                      <TableCell>{row.published?'Yes':'NO'}</TableCell>
                       <TableCell>
                         <IconButton
                           aria-label="more"

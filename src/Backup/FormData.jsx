@@ -1,348 +1,424 @@
-// import React, { useState } from 'react';
+import { useState } from "react";
+import React from 'react';
 
-// const FormData = () => {
-//   const [formData, setFormData] = useState({
-//     fullName: '',
-//     mobileNo: '',
-//     email: '',
-//     profile: '',
-//     state: '',
-//     district: '',
-//   });
+import {
+  Container,
+  Grid,
+  TextField,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
+  FormControl,
+  FormLabel,
+  Typography,
+  Button,
+  FormGroup,
+  Checkbox,
+  InputLabel,
+  MenuItem,
+  Select
+} from "@mui/material";
 
-//   const handleChange = (e) => {
-//     setFormData({
-//       ...formData,
-//       [e.target.name]: e.target.value,
-//     });
-//   };
+export default function Store() {
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [product, setProduct] = useState("");
+  const [locationAvailability, setLocationAvailability] = useState("");
+  const [cancel, setCancel] = useState("");
+  const [returnable, setReturnable] = useState("");
+  const [country, setCountry] = useState("");
+  const [state, setState] = useState("");
+  const [city, setCity] = useState("");
+  const [building, setBuilding] = useState("");
+  const [pinCode, setPinCode] = useState("");
+  const [locality, setLocality] = useState("");
+  const [logo, setLogo] = useState("");
+  const [networkLogistics, setNetworkLogistics] = useState("");
+  const [logisticsBppId, setLogisticsBppId] = useState("");
+  const [logisticsDeliveryType, setLogisticsDeliveryType] = useState("");
+  const [deliveryTime, setDeliveryTime] = useState("");
+  const [deliveryChecked, setDeliveryChecked] = useState(false);
+  const [selfPickupChecked, setSelfPickupChecked] = useState(false);
+  const [deliveryEmail, setDeliveryEmail] = useState("");
+  const [deliveryContactNumber, setDeliveryContactNumber] = useState("");
+  const [selfPickupEmail, setSelfPickupEmail] = useState("");
+  const [selfPickupContactNumber, setSelfPickupContactNumber] = useState("");
+  const [cites, setCites] = useState('');
+  const [serviceableRadius, setServiceableRadius] = useState('');
 
-//   const handleSubmit = (e) => {
-//     e.preventDefault();
-//     console.log('Form submitted:', formData);
-//   };
-
-//   return (
-//     <div style={{ maxWidth: '400px', margin: '0 auto', padding: '20px', border: '1px solid #f5c6cb', borderRadius: '10px' }}>
-//       <h2 style={{ textAlign: 'center' }}>Enquire Now</h2>
-//       <form onSubmit={handleSubmit}>
-//         <div style={{ marginBottom: '10px' }}>
-//           <input
-//             type="text"
-//             name="fullName"
-//             value={formData.fullName}
-//             onChange={handleChange}
-//             placeholder="Full Name"
-//             style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }}
-//           />
-//         </div>
-//         <div style={{ marginBottom: '10px' }}>
-//           <input
-//             type="text"
-//             name="mobileNo"
-//             value={formData.mobileNo}
-//             onChange={handleChange}
-//             placeholder="Mobile No."
-//             style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }}
-//           />
-//         </div>
-//         <div style={{ marginBottom: '10px' }}>
-//           <input
-//             type="email"
-//             name="email"
-//             value={formData.email}
-//             onChange={handleChange}
-//             placeholder="Email"
-//             style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }}
-//           />
-//         </div>
-
-//         <div style={{ marginBottom: '10px' }}>
-//           <input
-//             type="text"
-//             name="profile"
-//             value={formData.profile}
-//             onChange={handleChange}
-//             placeholder="Profile"
-//             style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }}
-//           />
-//         </div>
-
-
-//         <div style={{ marginBottom: '10px', display: 'flex', gap: '10px' }}>
-//           <input
-//             type="text"
-//             name="state"
-//             value={formData.state}
-//             onChange={handleChange}
-//             placeholder="Select State"
-//             style={{ width: '50%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }}
-//           />
-//           <input
-//             type="text"
-//             name="district"
-//             value={formData.district}
-//             onChange={handleChange}
-//             placeholder="Select District"
-//             style={{ width: '50%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }}
-//           />
-//         </div>
-//         <button
-//           type="submit"
-//           style={{
-//             width: '100%',
-//             padding: '10px',
-//             backgroundColor: '#ff5733',
-//             color: '#fff',
-//             border: 'none',
-//             borderRadius: '5px',
-//             cursor: 'pointer',
-//           }}
-//         >
-//           Submit
-//         </button>
-//       </form>
-//     </div>
-//   );
-// };
-
-// export default FormData;
-
-
-
-
-// import React, { useState } from 'react';
-
-// const FormData = () => {
-//   const [formData, setFormData] = useState({
-//     fullName: '',
-//     mobileNumber: '',
-//     email: '',
-//     course: '',
-//     message: '',
-//   });
-
-//   const handleChange = (e) => {
-//     setFormData({
-//       ...formData,
-//       [e.target.name]: e.target.value,
-//     });
-//   };
-
-//   const handleSubmit = (e) => {
-//     e.preventDefault();
-//     console.log('Form submitted:', formData);
-//     // Handle form submission, e.g., send data to a server
-//   };
-
-//   return (
-//     <div style={{ maxWidth: '400px', margin: '0 auto', padding: '20px', border: '1px solid #ccc', borderRadius: '10px', backgroundColor: '#fff', boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)' }}>
-//       <h2 style={{ textAlign: 'center', color: '#4a90e2' }}>Apply Now</h2>
-//       <form onSubmit={handleSubmit}>
-//         <div style={{ marginBottom: '15px' }}>
-//           <label style={{ display: 'block', marginBottom: '5px' }}>Full Name</label>
-//           <input
-//             type="text"
-//             name="fullName"
-//             value={formData.fullName}
-//             onChange={handleChange}
-//             placeholder="Full Name"
-//             style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }}
-//           />
-//         </div>
-
-//         <div style={{ marginBottom: '15px' }}>
-//           <label style={{ display: 'block', marginBottom: '5px' }}>Mobile Number</label>
-//           <div style={{ display: 'flex', alignItems: 'center', borderRadius: '5px', border: '1px solid #ccc', padding: '0 10px' }}>
-//             <span style={{ marginRight: '10px', display: 'flex', alignItems: 'center' }}>
-//               <img src="https://upload.wikimedia.org/wikipedia/en/thumb/4/41/Flag_of_India.svg/1200px-Flag_of_India.svg.png" alt="India Flag" style={{ width: '20px', height: '20px', marginRight: '5px' }} />
-//               +91
-//             </span>
-//             <input
-//               type="tel"
-//               name="mobileNumber"
-//               value={formData.mobileNumber}
-//               onChange={handleChange}
-//               placeholder="Mobile Number"
-//               style={{ width: '100%', padding: '10px', border: 'none', outline: 'none' }}
-//             />
-//           </div>
-//         </div>
-
-//         <div style={{ marginBottom: '15px' }}>
-//           <label style={{ display: 'block', marginBottom: '5px' }}>Email ID</label>
-//           <input
-//             type="email"
-//             name="email"
-//             value={formData.email}
-//             onChange={handleChange}
-//             placeholder="Email ID"
-//             style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }}
-//           />
-//         </div>
-
-//         <div style={{ marginBottom: '15px' }}>
-//           <label style={{ display: 'block', marginBottom: '5px' }}>Course</label>
-//           <input
-//             type="text"
-//             name="course"
-//             value={formData.course}
-//             onChange={handleChange}
-//             placeholder="Course Name"
-//             style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }}
-//           />
-//         </div>
-
-//         <div style={{ marginBottom: '15px' }}>
-//           <label style={{ display: 'block', marginBottom: '5px' }}>Write your message</label>
-//           <textarea
-//             name="message"
-//             value={formData.message}
-//             onChange={handleChange}
-//             placeholder="Write your message"
-//             style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ccc', minHeight: '100px' }}
-//           />
-//         </div>
-
-//         <button
-//           type="submit"
-//           style={{
-//             width: '100%',
-//             padding: '10px',
-//             backgroundColor: '#007bff',
-//             color: '#fff',
-//             border: 'none',
-//             borderRadius: '5px',
-//             cursor: 'pointer',
-//             fontSize: '16px',
-//           }}
-//         >
-//           Submit
-//         </button>
-//       </form>
-//     </div>
-//   );
-// };
-
-// export default FormData;
-
-
-
-
-// 
-
-
-import React, { useState } from 'react';
-import { TextField, MenuItem, Button, Grid } from '@mui/material';
-
-const FormData = () => {
-  const [formValues, setFormValues] = useState({
-    monthYear: '',
-    fulfillmentOption: '',
-    uom: '',
-    uomValue: '',
-    mrp: ''
-  });
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormValues({
-      ...formValues,
-      [name]: value
-    });
+  const handleNetworkLogistics = (event) => {
+    setNetworkLogistics(event.target.value);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log('Form Submitted', formValues);
+  const handleCancelChange = (event) => {
+    setCancel(event.target.value);
   };
 
-  const fulfillmentOptions = [
-    { value: 'option1', label: 'Option 1' },
-    { value: 'option2', label: 'Option 2' },
-    { value: 'option3', label: 'Option 3' },
-  ];
+  const handleReturnChange = (event) => {
+    setReturnable(event.target.value);
+  };
+
+  const handleDeliveryChange = (event) => {
+    setDeliveryChecked(event.target.checked);
+  };
+
+  const handleSelfPickupChange = (event) => {
+    setSelfPickupChecked(event.target.checked);
+  };
+
+  const handleLocationChange = (e) => {
+    setLocationAvailability(e.target.value);
+  };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <Grid container spacing={2}>
-        <Grid item xs={12}>
-          <TextField
-            fullWidth
-            required
-            name="monthYear"
-            label="Month Year Of Manufacture Packing Import"
-            placeholder="MM/YYYY"
-            value={formValues.monthYear}
-            onChange={handleInputChange}
-            InputLabelProps={{ shrink: true }}
-          />
+    <Container sx={{ padding: 3 }}>
+      <Typography variant="h4" gutterBottom align="center" sx={{ marginBottom: 4 }}>
+        Store Details
+      </Typography>
+      <form>
+        <Grid container spacing={3}>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              required
+              fullWidth
+              label="Email"
+              name="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              sx={{ mb: 2 }}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              required
+              fullWidth
+              label="Phone"
+              name="phone"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              sx={{ mb: 2 }}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <FormControl fullWidth>
+              <InputLabel>Product</InputLabel>
+              <Select
+                value={product}
+                onChange={(e) => setProduct(e.target.value)}
+                sx={{ mb: 2 }}
+              >
+                <MenuItem value="">Select a product</MenuItem>
+                <MenuItem value="Grocery">Grocery</MenuItem>
+                <MenuItem value="Fashion">Fashion</MenuItem>
+                <MenuItem value="Food">Food</MenuItem>
+                <MenuItem value="Logistic">Logistic</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12}>
+            <FormControl component="fieldset">
+              <FormLabel component="legend">Location Availability</FormLabel>
+              <RadioGroup
+                row
+                aria-label="location-availability"
+                name="location-availability"
+                value={locationAvailability}
+                onChange={handleLocationChange}
+              >
+                <FormControlLabel value="PAN india" control={<Radio />} label="PAN India" />
+                <FormControlLabel value="City" control={<Radio />} label="City" />
+                <FormControlLabel value="Radius" control={<Radio />} label="Radius" />
+              </RadioGroup>
+            </FormControl>
+          </Grid>
+          {locationAvailability === 'City' && (
+            <Grid item xs={12}>
+              <FormControl fullWidth>
+                <InputLabel>Select Cities</InputLabel>
+                <Select
+                  value={cites}
+                  onChange={(e) => setCites(e.target.value)}
+                  sx={{ mb: 2 }}
+                >
+                  <MenuItem value="">Select a City</MenuItem>
+                  <MenuItem value="Delhi">Delhi</MenuItem>
+                  <MenuItem value="Pune">Pune</MenuItem>
+                  <MenuItem value="Noida">Noida</MenuItem>
+                  <MenuItem value="Kolkata">Kolkata</MenuItem>
+                  <MenuItem value="Bengaluru">Bengaluru</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+          )}
+          {locationAvailability === 'Radius' && (
+            <Grid item xs={12}>
+              <TextField
+                required
+                fullWidth
+                label="Serviceable Radius/Circle (in Kilometer)"
+                name="serviceableRadius"
+                value={serviceableRadius}
+                onChange={(e) => setServiceableRadius(e.target.value)}
+                sx={{ mb: 2 }}
+              />
+            </Grid>
+          )}
+          <Grid item xs={12}>
+            <FormControl component="fieldset">
+              <FormLabel component="legend">Default Cancellable Setting</FormLabel>
+              <RadioGroup
+                row
+                aria-label="cancel"
+                name="cancel"
+                value={cancel}
+                onChange={handleCancelChange}
+              >
+                <FormControlLabel
+                  value="Cancellable"
+                  control={<Radio />}
+                  label="Cancellable"
+                />
+                <FormControlLabel
+                  value="Non-Cancellable"
+                  control={<Radio />}
+                  label="Non-Cancellable"
+                />
+              </RadioGroup>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12}>
+            <FormControl component="fieldset">
+              <FormLabel component="legend">Default Returnable Setting</FormLabel>
+              <RadioGroup
+                row
+                aria-label="returnable"
+                name="returnable"
+                value={returnable}
+                onChange={handleReturnChange}
+              >
+                <FormControlLabel
+                  value="Returnable"
+                  control={<Radio />}
+                  label="Returnable"
+                />
+                <FormControlLabel
+                  value="Non-Returnable"
+                  control={<Radio />}
+                  label="Non-Returnable"
+                />
+              </RadioGroup>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              required
+              fullWidth
+              label="Country"
+              name="country"
+              value={country}
+              onChange={(e) => setCountry(e.target.value)}
+              sx={{ mb: 2 }}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              required
+              fullWidth
+              label="State"
+              name="state"
+              value={state}
+              onChange={(e) => setState(e.target.value)}
+              sx={{ mb: 2 }}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              required
+              fullWidth
+              label="City"
+              name="city"
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              sx={{ mb: 2 }}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              required
+              fullWidth
+              label="Building"
+              name="building"
+              value={building}
+              onChange={(e) => setBuilding(e.target.value)}
+              sx={{ mb: 2 }}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              required
+              fullWidth
+              label="Pin Code"
+              name="pinCode"
+              value={pinCode}
+              onChange={(e) => setPinCode(e.target.value)}
+              sx={{ mb: 2 }}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              required
+              fullWidth
+              label="Locality"
+              name="locality"
+              value={locality}
+              onChange={(e) => setLocality(e.target.value)}
+              sx={{ mb: 2 }}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <input
+              type="file"
+              required
+              label="Logo URL"
+              name="logo"
+              value={logo}
+              onChange={(e) => setLogo(e.target.value)}
+              style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '4px' }}
+            />
+          </Grid>
+          <Typography variant="h4" gutterBottom align="center" sx={{ marginY: 4 }}>
+            Logistics Details
+          </Typography>
+          <Grid item xs={12}>
+            <FormControl component="fieldset">
+              <FormLabel component="legend">Network Logistics</FormLabel>
+              <RadioGroup
+                row
+                aria-label="networkLogistics"
+                name="networkLogistics"
+                value={networkLogistics}
+                onChange={handleNetworkLogistics}
+              >
+                <FormControlLabel value="on" control={<Radio />} label="On" />
+                <FormControlLabel value="off" control={<Radio />} label="Off" />
+              </RadioGroup>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <FormControl fullWidth>
+              <InputLabel>Logistics Delivery Type</InputLabel>
+              <Select
+                value={logisticsDeliveryType}
+                onChange={(e) => setLogisticsDeliveryType(e.target.value)}
+                sx={{ mb: 2 }}
+              >
+                <MenuItem value="">Select a delivery type</MenuItem>
+                <MenuItem value="Express">Express</MenuItem>
+                <MenuItem value="Standard">Standard</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          {networkLogistics === "on" ? (
+            <Grid item xs={12}>
+              <TextField
+                required
+                fullWidth
+                label="Logistics Bpp Id"
+                name="logisticsBppId"
+                value={logisticsBppId}
+                onChange={(e) => setLogisticsBppId(e.target.value)}
+                sx={{ mb: 2 }}
+              />
+            </Grid>
+          ) : (
+            <Grid item xs={12}>
+              <TextField
+                required
+                fullWidth
+                label="Delivery Time"
+                name="deliveryTime"
+                value={deliveryTime}
+                onChange={(e) => setDeliveryTime(e.target.value)}
+                sx={{ mb: 2 }}
+              />
+            </Grid>
+          )}
+          <Typography variant="h4" gutterBottom align="center" sx={{ marginY: 4 }}>
+            Supported Fulfillments
+          </Typography>
+          <Grid item xs={12}>
+            <FormGroup>
+              <FormControlLabel
+                control={<Checkbox checked={deliveryChecked} onChange={handleDeliveryChange} />}
+                label="Delivery"
+                value="delivery"
+              />
+              <FormControlLabel
+                control={<Checkbox checked={selfPickupChecked} onChange={handleSelfPickupChange} />}
+                label="Self Pickup"
+                value="selfPickup"
+              />
+            </FormGroup>
+            {deliveryChecked && (
+              <>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    required
+                    fullWidth
+                    label="Delivery Email"
+                    name="deliveryEmail"
+                    value={deliveryEmail}
+                    onChange={(e) => setDeliveryEmail(e.target.value)}
+                    sx={{ mb: 2 }}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    required
+                    fullWidth
+                    label="Delivery Contact Number"
+                    name="deliveryContactNumber"
+                    value={deliveryContactNumber}
+                    onChange={(e) => setDeliveryContactNumber(e.target.value)}
+                    sx={{ mb: 2 }}
+                  />
+                </Grid>
+              </>
+            )}
+            {selfPickupChecked && (
+              <>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    required
+                    fullWidth
+                    label="Self Pickup Email"
+                    name="selfPickupEmail"
+                    value={selfPickupEmail}
+                    onChange={(e) => setSelfPickupEmail(e.target.value)}
+                    sx={{ mb: 2 }}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    required
+                    fullWidth
+                    label="Self Pickup Contact Number"
+                    name="selfPickupContactNumber"
+                    value={selfPickupContactNumber}
+                    onChange={(e) => setSelfPickupContactNumber(e.target.value)}
+                    sx={{ mb: 2 }}
+                  />
+                </Grid>
+              </>
+            )}
+          </Grid>
+          <Grid item xs={12}>
+            <Button type="submit" variant="contained" color="primary" fullWidth>
+              Update
+            </Button>
+          </Grid>
         </Grid>
-        
-        <Grid item xs={12}>
-          <TextField
-            select
-            fullWidth
-            required
-            name="fulfillmentOption"
-            label="Fulfillment Option"
-            value={formValues.fulfillmentOption}
-            onChange={handleInputChange}
-            InputLabelProps={{ shrink: true }}
-          >
-            {fulfillmentOptions.map((option) => (
-              <MenuItem key={option.value} value={option.value}>
-                {option.label}
-              </MenuItem>
-            ))}
-          </TextField>
-        </Grid>
-        
-        <Grid item xs={12}>
-          <TextField
-            fullWidth
-            required
-            name="uom"
-            label="UOM"
-            value={formValues.uom}
-            onChange={handleInputChange}
-            InputLabelProps={{ shrink: true }}
-          />
-        </Grid>
-        
-        <Grid item xs={12}>
-          <TextField
-            fullWidth
-            required
-            name="uomValue"
-            label="UOM Value"
-            value={formValues.uomValue}
-            onChange={handleInputChange}
-            InputLabelProps={{ shrink: true }}
-          />
-        </Grid>
-        
-        <Grid item xs={12}>
-          <TextField
-            fullWidth
-            required
-            name="mrp"
-            label="MRP"
-            value={formValues.mrp}
-            onChange={handleInputChange}
-            InputLabelProps={{ shrink: true }}
-          />
-        </Grid>
-        
-        <Grid item xs={12}>
-          <Button type="submit" variant="contained" color="primary">
-            Submit
-          </Button>
-        </Grid>
-      </Grid>
-    </form>
+      </form>
+    </Container>
   );
-};
-
-
-export default FormData;
+}

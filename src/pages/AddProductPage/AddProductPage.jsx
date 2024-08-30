@@ -11,25 +11,32 @@ import {
   Button,
   Grid,
   InputLabel,
-  Typography
-} from '@mui/material';
+  Typography,
+  Card,
+  CardMedia,
+  IconButton,
+  CircularProgress,
+  Box
+} from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 
 const AddProductPage = () => {
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     commonDetails: {
       productCode: "",
       productName: "",
       HSNCode: "",
-      timing: [],
+      timing: [""],
       fulfillmentId: "",
       fulfillmentOption: "",
       GST_Percentage: "",
       productCategory: "",
-      productSubCategory1: "",
-      productSubCategory2: "",
-     productSubCategory3: "",
+      productSubcategory1: "",
+      productSubcategory2: "",
+      productSubcategory3: "",
       maxAllowedQty: "",
       countryOfOrigin: "",
       packQty: "",
@@ -39,16 +46,16 @@ const AddProductPage = () => {
       breadth: "",
       height: "",
       weight: "",
-      isReturnable: false,
+      isReturnable: "",
       returnWindow: "",
-      isVegetarian: false,
+      isVegetarian: "",
       manufactureName: "",
       manufactureDate: "",
       nutritionalInfo: "",
       additiveInfo: "",
       instructions: "",
-      isCancellable: false,
-      availableOnCOD: false,
+      isCancellable: "",
+      availableOnCOD: "",
       longDescription: "",
       description: "",
       manufactureOrPackerName: "",
@@ -61,7 +68,7 @@ const AddProductPage = () => {
       MRP: "",
       purchasePrice: "",
       barcode: "",
-      images: [], 
+      images: [],
       vegNonVeg: "",
     },
   });
@@ -69,70 +76,137 @@ const AddProductPage = () => {
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    const { name, value, type,  files } = e.target;
-    if (type === "file") {
-      setFormData((prevFormData) => ({
-        ...prevFormData,
-        commonDetails: {
-          ...prevFormData.commonDetails,
-          images: Array.from(files).map((file) => URL.createObjectURL(file)),
-        },
-      }));
-    
-    } else {
-      setFormData((prevFormData) => ({
-        ...prevFormData,
-        commonDetails: {
-          ...prevFormData.commonDetails,
-          [name]: value,
-        },
-      }));
-    }
+    const { name, value } = e.target;
+
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      commonDetails: {
+        ...prevFormData.commonDetails,
+        [name]: value,
+      },
+    }));
+  };
+
+  const handleTimingChange = (index, event) => {
+    const newTimings = [...formData.commonDetails.timing];
+    newTimings[index] = event.target.value;
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      commonDetails: {
+        ...prevFormData.commonDetails,
+        timing: newTimings,
+      },
+    }));
+  };
+
+  const addTimingField = () => {
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      commonDetails: {
+        ...prevFormData.commonDetails,
+        timing: [...prevFormData.commonDetails.timing, ""],
+      },
+    }));
+  };
+
+  const removeTimingField = (index) => {
+    const newTimings = [...formData.commonDetails.timing];
+    newTimings.splice(index, 1);
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      commonDetails: {
+        ...prevFormData.commonDetails,
+        timing: newTimings,
+      },
+    }));
+  };
+
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files); 
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      commonDetails: {
+        ...prevFormData.commonDetails,
+        images: [...prevFormData.commonDetails.images, ...files], // Append selected files to existing images array
+      },
+    }));
+  };
+
+  // Remove image from the array
+  const removeImage = (index) => {
+    const newImages = [...formData.commonDetails.images];
+    newImages.splice(index, 1);
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      commonDetails: {
+        ...prevFormData.commonDetails,
+        images: newImages,
+      },
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
- 
-
+    setLoading(true);
     try {
       const token = Cookies.get("token");
       console.log(token);
 
-      const response = await fetch("http://localhost:8080/product/ProductCreate", {
-        method: "POST",
-        headers: {
-          "authorization": `${token}`
-        },
-        body: JSON.stringify(formData)
-      });
+      const response = await fetch(
+        "http://localhost:8080/product/ProductCreate",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `${token}`,
+          },
+          body: JSON.stringify(formData),
+        }
+      );
 
       const data = await response.json();
-      console.log(data);
+      console.log("data ", data);
 
-      if (data.success) {
+      if (data.success === true) {
+        alert("Successfully added");
         console.log("Successfully added");
-      } else {
-        console.log("Failed to add");
       }
     } catch (error) {
       console.error("Error:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-      <div style={{ marginBottom: '16px' }}>
-        <Button variant='outlined'   onClick={()=>navigate('/inventory')}>Back</Button>
+    <div
+      style={{
+        padding: "16px",
+        display: "flex",
+        flexDirection: "column",
+        gap: "16px",
+      }}
+    >
+      <div style={{ marginBottom: "16px" }}>
+        <Button variant="outlined" onClick={() => navigate("/inventory")}>
+          Back
+        </Button>
       </div>
-      <div style={{ marginBottom: '16px' }}>
+      <div style={{ marginBottom: "16px" }}>
         <Typography variant="h6">Add Product</Typography>
       </div>
-      <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+      <div
+        style={{
+          marginBottom: "16px",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
         <Button
           variant="outlined"
           color="primary"
-          style={{ marginRight: '16px' }}
+          style={{ marginRight: "16px" }}
         >
           PRODUCT INFO
         </Button>
@@ -147,6 +221,7 @@ const AddProductPage = () => {
               value={formData.commonDetails.productCode}
               onChange={handleChange}
               fullWidth
+              required
             />
           </Grid>
           <Grid item xs={12} sm={6}>
@@ -156,6 +231,7 @@ const AddProductPage = () => {
               value={formData.commonDetails.productName}
               onChange={handleChange}
               fullWidth
+              required
             />
           </Grid>
           <Grid item xs={12} sm={6}>
@@ -165,6 +241,7 @@ const AddProductPage = () => {
               value={formData.commonDetails.HSNCode}
               onChange={handleChange}
               fullWidth
+              required
             />
           </Grid>
           <Grid item xs={12} sm={6}>
@@ -174,6 +251,7 @@ const AddProductPage = () => {
               value={formData.commonDetails.fulfillmentId}
               onChange={handleChange}
               fullWidth
+              required
             />
           </Grid>
           <Grid item xs={12} sm={6}>
@@ -183,6 +261,7 @@ const AddProductPage = () => {
                 name="GST_Percentage"
                 value={formData.commonDetails.GST_Percentage}
                 onChange={handleChange}
+                required
               >
                 <MenuItem value={0}>0%</MenuItem>
                 <MenuItem value={3}>3%</MenuItem>
@@ -200,33 +279,40 @@ const AddProductPage = () => {
               value={formData.commonDetails.productCategory}
               onChange={handleChange}
               fullWidth
+              required
             />
           </Grid>
           <Grid item xs={12} sm={6}>
             <TextField
               label="Product Sub-Category 1"
-              name="productSubCategory1"
-              value={formData.commonDetails.productSubCategory1}
+              name="productSubcategory1"
+              type="text"
+              value={formData.commonDetails.productSubcategory1}
               onChange={handleChange}
               fullWidth
+              required
             />
           </Grid>
           <Grid item xs={12} sm={6}>
             <TextField
               label="Product Sub-Category 2"
-              name="productSubCategory2"
-              value={formData.commonDetails.productSubCategory2}
+              name="productSubcategory2"
+              type="text"
+              value={formData.commonDetails.productSubcategory2}
               onChange={handleChange}
               fullWidth
+              required
             />
           </Grid>
           <Grid item xs={12} sm={6}>
             <TextField
               label="Product Sub-Category 3"
-              name="productSubCategory3"
-              value={formData.commonDetails.productSubCategory3}
+              name="productSubcategory3"
+              type="text"
+              value={formData.commonDetails.productSubcategory3}
               onChange={handleChange}
               fullWidth
+              required
             />
           </Grid>
           <Grid item xs={12} sm={6}>
@@ -237,6 +323,7 @@ const AddProductPage = () => {
               value={formData.commonDetails.maxAllowedQty}
               onChange={handleChange}
               fullWidth
+              required
             />
           </Grid>
           <Grid item xs={12} sm={6}>
@@ -246,6 +333,7 @@ const AddProductPage = () => {
                 name="countryOfOrigin"
                 value={formData.commonDetails.countryOfOrigin}
                 onChange={handleChange}
+                required
               >
                 <MenuItem value="AF">Afghanistan</MenuItem>
                 <MenuItem value="AL">Albania</MenuItem>
@@ -514,6 +602,7 @@ const AddProductPage = () => {
               value={formData.commonDetails.packQty}
               onChange={handleChange}
               fullWidth
+              required
             />
           </Grid>
           <Grid item xs={12} sm={6}>
@@ -523,6 +612,7 @@ const AddProductPage = () => {
               value={formData.commonDetails.UOM}
               onChange={handleChange}
               fullWidth
+              required
             />
           </Grid>
           <Grid item xs={12} sm={6}>
@@ -532,6 +622,7 @@ const AddProductPage = () => {
               value={formData.commonDetails.UOMValue}
               onChange={handleChange}
               fullWidth
+              required
             />
           </Grid>
           <Grid item xs={12} sm={6}>
@@ -541,17 +632,20 @@ const AddProductPage = () => {
               value={formData.commonDetails.length}
               onChange={handleChange}
               fullWidth
+              required
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          {/* <Grid item xs={12} sm={6}>
             <TextField
               label="timing"
               name="timing"
+              type="array"
               value={formData.commonDetails.timing}
               onChange={handleChange}
               fullWidth
             />
-          </Grid>
+          </Grid> */}
+
           <Grid item xs={12} sm={6}>
             <TextField
               label="Breadth"
@@ -559,6 +653,7 @@ const AddProductPage = () => {
               value={formData.commonDetails.breadth}
               onChange={handleChange}
               fullWidth
+              required
             />
           </Grid>
 
@@ -569,6 +664,7 @@ const AddProductPage = () => {
               value={formData.commonDetails.fulfillmentOption}
               onChange={handleChange}
               fullWidth
+              required
             />
           </Grid>
           <Grid item xs={12} sm={6}>
@@ -578,6 +674,7 @@ const AddProductPage = () => {
               value={formData.commonDetails.height}
               onChange={handleChange}
               fullWidth
+              required
             />
           </Grid>
           <Grid item xs={12} sm={6}>
@@ -587,9 +684,42 @@ const AddProductPage = () => {
               value={formData.commonDetails.weight}
               onChange={handleChange}
               fullWidth
+              required
             />
           </Grid>
+
+          {/* <Grid item xs={12} sm={6}>
+            <TextField
+              label="Return Window"
+              name="returnWindow"
+              value={formData.commonDetails.returnWindow}
+              onChange={handleChange}
+              fullWidth
+              required
+            />
+          </Grid> */}
+
           <Grid item xs={12} sm={6}>
+      <FormControl fullWidth required>
+        <InputLabel id="return-window-label">Return Window</InputLabel>
+        <Select
+          labelId="return-window-label"
+          name="returnWindow"
+          value={formData.commonDetails.returnWindow}
+          onChange={handleChange}
+          label="Return Window"
+        >
+          <MenuItem value="P1D">P1D</MenuItem>
+          <MenuItem value="P2D">P2D</MenuItem>
+          <MenuItem value="P3D">P3D</MenuItem>
+          <MenuItem value="P4D">P4D</MenuItem>
+          <MenuItem value="P5D">P5D</MenuItem>
+          <MenuItem value="P6D">P6D</MenuItem>
+          <MenuItem value="P7D">P7D</MenuItem>
+        </Select>
+      </FormControl>
+    </Grid>
+          <Grid item xs={12}>
             <FormControl component="fieldset">
               <FormLabel component="legend">Is Returnable</FormLabel>
               <RadioGroup
@@ -597,20 +727,20 @@ const AddProductPage = () => {
                 value={formData.commonDetails.isReturnable}
                 onChange={handleChange}
               >
-                <FormControlLabel value="yes" control={<Radio />} label="Yes" />
-                <FormControlLabel value="no" control={<Radio />} label="No" />
+                <FormControlLabel
+                  value="true"
+                  control={<Radio />}
+                  label="Yes"
+                />
+                <FormControlLabel
+                  value="false"
+                  control={<Radio />}
+                  label="No"
+                />
               </RadioGroup>
             </FormControl>
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              label="Return Window"
-              name="returnWindow"
-              value={formData.commonDetails.returnWindow}
-              onChange={handleChange}
-              fullWidth
-            />
-          </Grid>
+
           <Grid item xs={12} sm={6}>
             <FormControl component="fieldset">
               <FormLabel component="legend">Is Vegetarian</FormLabel>
@@ -618,9 +748,18 @@ const AddProductPage = () => {
                 name="isVegetarian"
                 value={formData.commonDetails.isVegetarian}
                 onChange={handleChange}
+                required
               >
-                <FormControlLabel value="yes" control={<Radio />} label="Yes" />
-                <FormControlLabel value="no" control={<Radio />} label="No" />
+                <FormControlLabel
+                  value="true"
+                  control={<Radio />}
+                  label="Yes"
+                />
+                <FormControlLabel
+                  value="false"
+                  control={<Radio />}
+                  label="No"
+                />
               </RadioGroup>
             </FormControl>
           </Grid>
@@ -630,6 +769,7 @@ const AddProductPage = () => {
               name="manufactureName"
               value={formData.commonDetails.manufactureName}
               onChange={handleChange}
+              required
               fullWidth
             />
           </Grid>
@@ -641,6 +781,7 @@ const AddProductPage = () => {
               InputLabelProps={{ shrink: true }}
               value={formData.commonDetails.manufactureDate}
               onChange={handleChange}
+              required
               fullWidth
             />
           </Grid>
@@ -650,6 +791,7 @@ const AddProductPage = () => {
               name="nutritionalInfo"
               value={formData.commonDetails.nutritionalInfo}
               onChange={handleChange}
+              required
               fullWidth
             />
           </Grid>
@@ -659,6 +801,7 @@ const AddProductPage = () => {
               name="additiveInfo"
               value={formData.commonDetails.additiveInfo}
               onChange={handleChange}
+              required
               fullWidth
             />
           </Grid>
@@ -668,6 +811,7 @@ const AddProductPage = () => {
               name="instructions"
               value={formData.commonDetails.instructions}
               onChange={handleChange}
+              required
               fullWidth
             />
           </Grid>
@@ -678,9 +822,18 @@ const AddProductPage = () => {
                 name="isCancellable"
                 value={formData.commonDetails.isCancellable}
                 onChange={handleChange}
+                required
               >
-                <FormControlLabel value="yes" control={<Radio />} label="Yes" />
-                <FormControlLabel value="no" control={<Radio />} label="No" />
+                <FormControlLabel
+                  value="true"
+                  control={<Radio />}
+                  label="Yes"
+                />
+                <FormControlLabel
+                  value="false"
+                  control={<Radio />}
+                  label="No"
+                />
               </RadioGroup>
             </FormControl>
           </Grid>
@@ -691,9 +844,18 @@ const AddProductPage = () => {
                 name="availableOnCOD"
                 value={formData.commonDetails.availableOnCOD}
                 onChange={handleChange}
+                required
               >
-                <FormControlLabel value="yes" control={<Radio />} label="Yes" />
-                <FormControlLabel value="no" control={<Radio />} label="No" />
+                <FormControlLabel
+                  value="true"
+                  control={<Radio />}
+                  label="Yes"
+                />
+                <FormControlLabel
+                  value="false"
+                  control={<Radio />}
+                  label="No"
+                />
               </RadioGroup>
             </FormControl>
           </Grid>
@@ -705,6 +867,7 @@ const AddProductPage = () => {
               rows={2}
               value={formData.commonDetails.longDescription}
               onChange={handleChange}
+              required
               fullWidth
             />
           </Grid>
@@ -716,6 +879,7 @@ const AddProductPage = () => {
               rows={2}
               value={formData.commonDetails.description}
               onChange={handleChange}
+              required
               fullWidth
             />
           </Grid>
@@ -725,6 +889,7 @@ const AddProductPage = () => {
               name="manufactureOrPackerName"
               value={formData.commonDetails.manufactureOrPackerName}
               onChange={handleChange}
+              required
               fullWidth
             />
           </Grid>
@@ -734,6 +899,7 @@ const AddProductPage = () => {
               name="manufactureOrPackerAddress"
               value={formData.commonDetails.manufactureOrPackerAddress}
               onChange={handleChange}
+              required
               fullWidth
             />
           </Grid>
@@ -743,19 +909,22 @@ const AddProductPage = () => {
               name="commonOrGenericNameOfCommodity"
               value={formData.commonDetails.commonOrGenericNameOfCommodity}
               onChange={handleChange}
+              required
               fullWidth
             />
           </Grid>
           <Grid item xs={12}>
             <TextField
+              placeholder="MM/YYYY"
               label="Month/Year of Manufacture/Packing/Import"
               name="monthYearOfManufacturePackingImport"
               value={formData.commonDetails.monthYearOfManufacturePackingImport}
               onChange={handleChange}
+              required
               fullWidth
             />
           </Grid>
-     
+
           {/* <Grid item xs={12}>
           <TextField
             fullWidth
@@ -765,16 +934,18 @@ const AddProductPage = () => {
             placeholder="MM/YYYY"
             value={formData.commonDetails.monthYearOfManufacturePackingImport}
             onChange={handleChange}
+            required
             InputLabelProps={{ shrink: true }}
           />
         </Grid> */}
-          
+
           <Grid item xs={12}>
             <TextField
               label="Import FSSAI License No"
               name="importFSSAILicenseNo"
               value={formData.commonDetails.importFSSAILicenseNo}
               onChange={handleChange}
+              required
               fullWidth
             />
           </Grid>
@@ -784,6 +955,7 @@ const AddProductPage = () => {
               name="brandOwnerFSSAILicenseNo"
               value={formData.commonDetails.brandOwnerFSSAILicenseNo}
               onChange={handleChange}
+              required
               fullWidth
             />
           </Grid>
@@ -794,6 +966,7 @@ const AddProductPage = () => {
               type="number"
               value={formData.commonDetails.quantity}
               onChange={handleChange}
+              required
               fullWidth
             />
           </Grid>
@@ -804,6 +977,7 @@ const AddProductPage = () => {
               type="number"
               value={formData.commonDetails.MRP}
               onChange={handleChange}
+              required
               fullWidth
             />
           </Grid>
@@ -814,6 +988,7 @@ const AddProductPage = () => {
               type="number"
               value={formData.commonDetails.purchasePrice}
               onChange={handleChange}
+              required
               fullWidth
             />
           </Grid>
@@ -821,12 +996,14 @@ const AddProductPage = () => {
             <TextField
               label="Barcode"
               name="barcode"
+              type="number"
               value={formData.commonDetails.barcode}
               onChange={handleChange}
+              required
               fullWidth
             />
           </Grid>
-          <Grid item xs={12}>
+          {/* <Grid item xs={12}>
             <TextField
               label="Images"
               name="images"
@@ -834,7 +1011,45 @@ const AddProductPage = () => {
               onChange={handleChange}
               fullWidth
             />
+          </Grid> */}
+
+          <Grid item xs={12}>
+            <Typography variant="h6">Upload Images</Typography>
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={handleImageChange}
+            />
           </Grid>
+
+          {/* Image Preview */}
+          {formData.commonDetails.images.length > 0 && (
+            <Grid item xs={12}>
+              <Typography variant="h6">Image Previews</Typography>
+              <Grid container spacing={2}>
+                {formData.commonDetails.images.map((image, index) => (
+                  <Grid item xs={3} key={index}>
+                    <Card>
+                      <CardMedia
+                        component="img"
+                        height="140"
+                        image={URL.createObjectURL(image)} // Create a URL for preview
+                        alt={`image ${index + 1}`}
+                      />
+                      <IconButton
+                        onClick={() => removeImage(index)}
+                        aria-label="delete"
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+            </Grid>
+          )}
+
           <Grid item xs={12} sm={6}>
             <FormControl component="fieldset">
               <FormLabel component="legend">Veg/Non-Veg</FormLabel>
@@ -842,16 +1057,73 @@ const AddProductPage = () => {
                 name="vegNonVeg"
                 value={formData.commonDetails.vegNonVeg}
                 onChange={handleChange}
+                required
               >
                 <FormControlLabel value="VEG" control={<Radio />} label="Veg" />
-                <FormControlLabel value="NON-VEG" control={<Radio />} label="Non-Veg" />
+                <FormControlLabel
+                  value="NON-VEG"
+                  control={<Radio />}
+                  label="Non-Veg"
+                />
               </RadioGroup>
             </FormControl>
           </Grid>
+
           <Grid item xs={12}>
-            <Button type="submit" variant="contained" color="primary">
-              Submit
+            <Typography variant="h6">Timings</Typography>
+            {formData.commonDetails.timing.map((time, index) => (
+              <Grid
+                container
+                spacing={2}
+                key={index}
+                style={{ marginBottom: "15px" }}
+              >
+                <Grid item xs={10}>
+                  <TextField
+                    label={`Timing ${index + 1}`}
+                    value={time}
+                    type="time"
+                    onChange={(e) => handleTimingChange(index, e)}
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={2}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => removeTimingField(index)}
+                    disabled={formData.commonDetails.timing.length === 1}
+                  >
+                    Remove
+                  </Button>
+                </Grid>
+              </Grid>
+            ))}
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={addTimingField}
+              style={{ marginTop: "10px" }}
+            >
+              Add Timing
             </Button>
+          </Grid>
+
+          <Grid item xs={12}>
+            <Box display="flex" justifyContent="center">
+              <Button
+                variant="contained"
+                color="primary"
+                type="submit"
+                disabled={loading}
+              >
+                {loading ? (
+                  <CircularProgress size={24} color="warning" />
+                ) : (
+                  "Submit"
+                )}
+              </Button>
+            </Box>
           </Grid>
         </Grid>
       </form>

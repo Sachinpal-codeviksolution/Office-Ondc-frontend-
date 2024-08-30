@@ -13,8 +13,12 @@ export const AuthProvider = ({ children }) => {
     setIsAuthenticated(false);
   };
 
+  const sellerRegister=()=>{
+    setIsAuthenticated(true);
+  }
+
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, login, logout,sellerRegister }}>
       {children}
     </AuthContext.Provider>
   );
