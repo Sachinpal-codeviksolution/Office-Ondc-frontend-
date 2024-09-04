@@ -1,455 +1,394 @@
-import React, { useState } from 'react';
-import { Button, Container, Grid, TextField, Stepper, Step, StepLabel } from '@mui/material';
+import React, { useState, useEffect } from "react";
+import {
+  Button,
+  Box,
+  Grid,
+  Stack,
+  ThemeProvider,
+  createTheme,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  IconButton,
+  Menu,
+  TablePagination,
+  Switch,
+  Typography,
+  AppBar,
+  Toolbar,
+} from "@mui/material";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import MenuIcon from "@mui/icons-material/Menu";
+import AccountCircle from "@mui/icons-material/AccountCircle";
+import { Link, useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
 
-const steps = [
-  'Personal Information',
-  'KYC Information',
-  'Upload Documents',
-  'Bank Details',
-];
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: "#1976d2",
+    },
+  },
+});
 
-const MultiStepForm = () => {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [formData, setFormData] = useState({
-    email: '',
-    phone: '',
-    name: '',
-    password: '',
-    providerStoreName: '',
-    registerAddress: '',
-    emailKYC: '',
-    mobileNumberKYC: '',
-    pan: '',
-    gstin: '',
-    profilePicture: null,
-    idProof: null,
-    panCardImage: null,
-    gstinCertificate: null,
-    accountHolderName: '',
-    accountNumber: '',
-    bankName: '',
-    branchName: '',
-    ifscCode: ''
-  });
+function Inventory() {
+  const [productCategory, setProductCategory] = useState("");
+  const [checked, setChecked] = useState(false);
+  const [anchorEls, setAnchorEls] = useState({}); // Array to store anchorEl for each row
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredData, setFilteredData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const navigate = useNavigate();
 
-  const [formErrors, setFormErrors] = useState({
-    email: false,
-    phone: false,
-    name: false,
-    password: false,
-    providerStoreName: false,
-    registerAddress: false,
-    emailKYC: false,
-    mobileNumberKYC: false,
-    pan: false,
-    gstin: false,
-    profilePicture: false,
-    idProof: false,
-    panCardImage: false,
-    gstinCertificate: false,
-    accountHolderName: false,
-    accountNumber: false,
-    bankName: false,
-    branchName: false,
-    ifscCode: false
-  });
-
-  const handleChange = (e) => {
-    const { name, value, type, files } = e.target;
-
-    if (type === 'file') {
-      setFormData(prevState => ({
-        ...prevState,
-        [name]: files[0]
-      }));
-    } else {
-      setFormData(prevState => ({
-        ...prevState,
-        [name]: value
-      }));
-    }
-  };
-
-  const handleSubmit = async(e) => {
-    e.preventDefault();
-    const errors = {};
-    let hasErrors = false;
-    Object.keys(formData).forEach(key => {
-      if (!formData[key] && key !== 'profilePicture' && key !== 'idProof' && key !== 'panCardImage' && key !== 'gstinCertificate') {
-        errors[key] = true;
-        hasErrors = true;   
-      }
-    });
-    if (hasErrors) {
-      setFormErrors(errors);
-    } else {   
-      console.log(formData);
+  useEffect(() => {
+    // Function to fetch product data from API
+    const fetchData = async () => {
       try {
-        const response = await fetch("http://localhost:8080/adminRegister",{
-          method: "POST",
+        const token = Cookies.get("token");
+        console.log('token at line no. 60 in inventory.jsx :', token);
+        const response = await fetch("http://localhost:8080/product/products", {
           headers: {
-            "Content-Type": "application/json"
+            "authorization": `${token}`, // Replace with actual token
           },
-          body: JSON.stringify({formData})
         });
-  
+
         if (!response.ok) {
-          throw new Error('Network response was not ok.');
+          throw new Error("Network response was not ok");
         }
+
         const data = await response.json();
-  
-        if (data.success === true) {
-           console.log("data successfully send");
-          
-        } else {
-      alert(" some thing wrong")
-        }
+        console.log("line no 74 ", data);
+        setFilteredData(data);
+        setLoading(false);
       } catch (error) {
-       console.log(error);
+        setError(error.message);
+        setLoading(false);
       }
-      setCurrentStep(0);
-      setFormData({
-        email: '',
-        phone: '',
-        name: '',
-        password: '',
-        providerStoreName: '',
-        registerAddress: '',
-        emailKYC: '',
-        mobileNumberKYC: '',
-        pan: '',
-        gstin: '',
-        profilePicture: null,
-        idProof: null,
-        panCardImage: null,
-        gstinCertificate: null,
-        accountHolderName: '',
-        accountNumber: '',
-        bankName: '',
-        branchName: '',
-        ifscCode: ''
-      });
-      setFormErrors({
-        email: false,
-        phone: false,
-        name: false,
-        password: false,
-        providerStoreName: false,
-        registerAddress: false,
-        emailKYC: false,
-        mobileNumberKYC: false,
-        pan: false,
-        gstin: false,
-        profilePicture: false,
-        idProof: false,
-        panCardImage: false,
-        gstinCertificate: false,
-        accountHolderName: false,
-        accountNumber: false,
-        bankName: false,
-        branchName: false,
-        ifscCode: false
-      });
+    };
+
+    fetchData();
+  }, []);
+
+  const handleCategoryChange = (event) => {
+    setProductCategory(event.target.value);
+  };
+
+  const handleChangeChecked = (event) => {
+    setChecked(event.target.checked);
+  };
+
+  const handleClick = (event, index) => {
+    setAnchorEls((prev) => ({
+      ...prev,
+      [index]: event.currentTarget,
+    }));
+  };
+
+  const handleClose = (index) => {
+    setAnchorEls((prev) => ({
+      ...prev,
+      [index]: null,
+    }));
+  };
+
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
+  };
+
+  // Filter data based on search and category
+  const handleFilter = () => {
+    let data = filteredData;
+
+    if (searchQuery) {
+      data = data.filter((item) =>
+        item.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
     }
+
+    if (productCategory) {
+      data = data.filter((item) => item.type === productCategory);
+    }
+    if (checked) {
+      // Add any specific out-of-stock filter logic if needed
+      data = data.filter((item) => item.quantity === 0);
+    }
+
+    setFilteredData(data);
+    setPage(0); // Reset to the first page after filtering
   };
 
-  const nextStep = () => {
-    setCurrentStep(prevStep => prevStep + 1);
+  // Reset filters
+  const handleReset = () => {
+    setSearchQuery("");
+    setProductCategory("");
+    setChecked(false);
+    // Fetch fresh data after reset
+    const fetchData = async () => {
+      const token = Cookies.get("token");
+      console.log('token at line no. 136 in inventory.jsx :', token);
+      try {
+        const response = await fetch("http://localhost:8080/product/products", {
+          headers: {
+            "Authorization": `${token}`, // Replace with actual token
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        const data = await response.json();
+        console.log("line 151", data);
+        setFilteredData(data);
+        setPage(0); // Reset to the first page after reset
+      } catch (error) {
+        setError(error.message);
+      }
+    };
+
+    fetchData();
   };
 
-  const prevStep = () => {
-    setCurrentStep(prevStep => prevStep - 1);
+  // Handle page change
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
   };
-  return (
-    <Container maxWidth="md">
-      <Stepper activeStep={currentStep} alternativeLabel>
-        {steps.map((label) => (
-          <Step key={label}>
-            <StepLabel>{label}</StepLabel>
-          </Step>
-        ))}
-      </Stepper>
-      <form onSubmit={handleSubmit}>
-        {currentStep === 0 && (
-          <Grid container spacing={2}>
-            <Grid item xs={12}>       
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                required
-                fullWidth
-                label="Email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                error={formErrors.email}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                required
-                fullWidth
-                label="Mobile Number"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                error={formErrors.phone}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-              required
-                fullWidth
-                label="Name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                error={formErrors.name}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-              required
-                fullWidth
-                label="Password"
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                error={formErrors.password}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <Button variant="contained" color="primary" onClick={nextStep}>
-                Next
-              </Button>
-            </Grid>
-          </Grid>
-        )}
-        {currentStep === 1 && (
-          <Grid container spacing={2}>
-            <Grid item xs={12}>      
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-              required
-                fullWidth
-                label="Provider Store Name"
-                name="providerStoreName"
-                value={formData.providerStoreName}
-                onChange={handleChange}
-                error={formErrors.providerStoreName}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-              required
-                fullWidth
-                label="Register Address"
-                name="registerAddress"
-                value={formData.registerAddress}
-                onChange={handleChange}
-                error={formErrors.registerAddress}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-              required
-                fullWidth
-                label="Email"
-                type="email"
-                name="emailKYC"
-                value={formData.emailKYC}
-                onChange={handleChange}
-                error={formErrors.emailKYC}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-              required
-                fullWidth
-                label="Mobile Number"
-                name="mobileNumberKYC"
-                value={formData.mobileNumberKYC}
-                onChange={handleChange}
-                error={formErrors.mobileNumberKYC}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-              required
-                fullWidth
-                label="PAN"
-                name="pan"
-                value={formData.pan}
-                onChange={handleChange}
-                error={formErrors.pan}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-              required
-                fullWidth
-                label="GSTIN"
-                name="gstin"
-                value={formData.gstin}
-                onChange={handleChange}
-                error={formErrors.gstin}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <Button variant="contained" onClick={prevStep}>
-                Previous
-              </Button>
-            </Grid>
-            <Grid item xs={6}>
-              <Button variant="contained" color="primary" onClick={nextStep}>
-                Next
-              </Button>
-            </Grid>
-          </Grid>
-        )}
 
-        {currentStep === 2 && (
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-            
-            </Grid>
-            <Grid item xs={12}>
-            <p>Address Proof</p>
-              <TextField
-              required
-                fullWidth
-                type="file"
-                name="profilePicture"
-                onChange={handleChange}
-                error={formErrors.profilePicture}
-              />
-            </Grid>
-            <Grid item xs={12}>
-            <p>ID Proof</p>
-              <TextField
-              required
-                fullWidth
-                type="file"
-                name="idProof"
-                onChange={handleChange}
-                error={formErrors.idProof}
-              />
-            </Grid>
-            <Grid item xs={12}>
-            <p>Pan Card Image</p>
+  // Handle rows per page change
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
 
-              <TextField
-              required
-                fullWidth
-                type="file"
-                name="panCardImage"
-                onChange={handleChange}
-                error={formErrors.panCardImage}
-              />
-            </Grid>
-            <Grid item xs={12}>
-            <p>GST Proof</p>
-
-              <TextField
-              required
-                fullWidth
-                type="file"
-                name="gstinCertificate"
-                onChange={handleChange}
-                error={formErrors.gstinCertificate}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <Button variant="contained" onClick={prevStep}>
-                Previous
-              </Button>
-            </Grid>
-            <Grid item xs={6}>
-              <Button variant="contained" color="primary" onClick={nextStep}>
-                Next
-              </Button>
-            </Grid>
-          </Grid>
-        )}
-
-        {currentStep === 3 && (
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-            
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-              required
-                fullWidth
-                label="Account Holder Name"
-                name="accountHolderName"
-                value={formData.accountHolderName}
-                onChange={handleChange}
-                error={formErrors.accountHolderName}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-              required
-                fullWidth
-                label="Account Number"
-                name="accountNumber"
-                value={formData.accountNumber}
-                onChange={handleChange}
-                error={formErrors.accountNumber}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-              required
-                fullWidth
-                label="Bank Name"
-                name="bankName"
-                value={formData.bankName}
-                onChange={handleChange}
-                error={formErrors.bankName}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-              required
-                fullWidth
-                label="Branch Name"
-                name="branchName"
-                value={formData.branchName}
-                onChange={handleChange}
-                error={formErrors.branchName}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-              required
-                fullWidth
-                label="IFSC Code"
-                name="ifscCode"
-                value={formData.ifscCode}
-                onChange={handleChange}
-                error={formErrors.ifscCode}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <Button variant="contained" onClick={prevStep}>
-                Previous
-              </Button>
-            </Grid>
-            <Grid item xs={6}>
-              <Button type="submit" variant="contained" color="primary">
-                Submit
-              </Button>
-            </Grid>
-          </Grid>
-        )}
-      </form>
-    </Container>
-
+  // Paginate the filtered data
+  const paginatedData = filteredData.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
   );
-};
 
-export default MultiStepForm;
+  if (loading) {
+    return (
+      <Typography
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          margin: 0,
+        }}
+      >
+        Loading...
+      </Typography>
+    );
+  }
+
+  if (error) {
+    return <Typography>Error: {error}</Typography>;
+  }
+
+  return (
+    <div className="">
+      <ThemeProvider theme={theme}>
+        {/* Header */}
+        <AppBar position="static" color="primary">
+          <Toolbar>
+            <IconButton
+              edge="start"
+              color="inherit"
+              aria-label="menu"
+              sx={{ mr: 2 }}
+            >
+              <MenuIcon />
+            </IconButton>
+            <Typography variant="h6" sx={{ flexGrow: 1 }}>
+              Inventory
+            </Typography>
+            <IconButton color="inherit">
+              <AccountCircle />
+            </IconButton>
+          </Toolbar>
+        </AppBar>
+
+        <Box height="30px" />
+
+        {/* Filter Section */}
+        <Grid container spacing={2} alignItems="center" sx={{ px: 2 }}>
+          <Grid item xs={12}>
+            <Typography color="primary" sx={{ fontWeight: "bold" }}>
+              Filters
+            </Typography>
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <TextField
+              id="standard-search"
+              label="Search by Product Name"
+              type="search"
+              variant="standard"
+              value={searchQuery}
+              onChange={handleSearchChange}
+              sx={{ width: "100%" }}
+            />
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <FormControl variant="standard" sx={{ width: "100%" }}>
+              <InputLabel id="demo-simple-select-standard-label">
+                Please Select Product Category
+              </InputLabel>
+              <Select
+                labelId="demo-simple-select-standard-label"
+                id="select_product"
+                value={productCategory}
+                onChange={handleCategoryChange}
+                label="Please Select Product Category"
+              >
+                <MenuItem value=""></MenuItem>
+                <MenuItem value="Product">Product</MenuItem>
+                <MenuItem value="Customization">Customization</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} sm={2}>
+            <Stack direction="row" spacing={1} alignItems="center">
+              <Typography>Out of Stock</Typography>
+              <Switch
+                checked={checked}
+                onChange={handleChangeChecked}
+                inputProps={{ "aria-label": "controlled" }}
+              />
+            </Stack>
+          </Grid>
+          <Grid item xs={12} sm={2}>
+            <Stack direction="row" spacing={1}>
+              <Button variant="outlined" color="primary" onClick={handleReset}>
+                RESET
+              </Button>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleFilter}
+              >
+                FILTER
+              </Button>
+            </Stack>
+          </Grid>
+        </Grid>
+
+        <Box height="20px" />
+
+        {/* Action Buttons */}
+        <Grid container spacing={2} justifyContent="flex-end" sx={{ px: 2 }}>
+          <Grid item>
+            <Button variant="contained" color="primary">
+              + BULK UPLOAD
+            </Button>
+          </Grid>
+          <Grid item>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => navigate("/addProductpage")}
+            >
+              + ADD PRODUCT
+            </Button>
+          </Grid>
+          <Grid item>
+            <Button variant="contained" color="primary">
+              + ADD CUSTOMIZATION
+            </Button>
+          </Grid>
+        </Grid>
+
+        <Box height="20px" />
+
+        {/* Table Section */}
+        <Grid container spacing={2} sx={{ px: 2 }}>
+          <Grid item xs={12}>
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow style={{ backgroundColor: "#1976d2" }}>
+                    <TableCell style={{ color: "white" }}>
+                      Product Name
+                    </TableCell>
+                    <TableCell style={{ color: "white" }}>Quantity</TableCell>
+                    <TableCell style={{ color: "white" }}>
+                      Purchase Price
+                    </TableCell>
+                    <TableCell style={{ color: "white" }}>
+                      Cancellable
+                    </TableCell>
+                    <TableCell style={{ color: "white" }}>Returnable</TableCell>
+                    <TableCell style={{ color: "white" }}>Published</TableCell>
+                    <TableCell style={{ color: "white" }}>Action</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {paginatedData.map((row, index) => {
+                    return (
+                      <TableRow key={index}>
+                        <TableCell>{row.productName}</TableCell>
+                        <TableCell>{row._id}</TableCell>
+                        <TableCell>&#8377;&nbsp;{row.purchasePrice}</TableCell>
+                        <TableCell>{row.isCancellable ? "Yes" : "No"}</TableCell>
+                        <TableCell>{row.isReturnable ? "Yes" : "No"}</TableCell>
+                        <TableCell>{row.published ? "Yes" : "No"}</TableCell>
+                        <TableCell>
+                          <IconButton
+                            aria-label="more"
+                            aria-controls={`long-menu-${index}`}
+                            aria-haspopup="true"
+                            onClick={(event) => handleClick(event, index)}
+                          >
+                            <MoreVertIcon />
+                          </IconButton>
+                          <Menu
+                            id={`long-menu-${index}`}
+                            anchorEl={anchorEls[index]}
+                            open={Boolean(anchorEls[index])}
+                            onClose={() => handleClose(index)}
+                          >
+                            <Link to={`/updateProductPage/${row._id}`}>
+                              <MenuItem onClick={() => handleClose(index)}>
+                                Edit
+                              </MenuItem>
+                            </Link>
+                            <MenuItem onClick={() => handleClose(index)}>
+                              Delete
+                            </MenuItem>
+                          </Menu>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+              <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                component="div"
+                count={filteredData.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+              />
+            </TableContainer>
+          </Grid>
+        </Grid>
+      </ThemeProvider>
+    </div>
+  );
+}
+
+export default Inventory;

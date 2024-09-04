@@ -22,6 +22,8 @@ import AdminLogin from './pages/AdminLogin';
 import AddProductPage from './pages/AddProductPage/AddProductPage';
 import MultiStepForm from './pages/MultiStepForm/MultiStepForm';
 import Store from './pages/Store/Store';
+import UpdateInventroy from './pages/AddProductPage/UpdateInventroy';
+import UpdateMultiStepForm from './pages/MultiStepForm/UpdateMultiStepForm';
 function App() {
   const  {isAuthenticated }= useAuth();
   return (
@@ -32,6 +34,7 @@ function App() {
           {/* <Route path="/" element={<Login />} /> */}
           <Route path="/" element={<AdminLogin/>} />
           <Route path="/multistepform" element={<MultiStepForm/>} />
+          <Route path="/Updatemultistepform" element={<UpdateMultiStepForm/>} />
           
           {isAuthenticated ? (
             <>
@@ -53,7 +56,10 @@ function App() {
               <Route path="/barchart" element={<BarChart />} />
               <Route path="/addProductpage" element={<AddProductPage/>} />
               <Route path="/addProductTwo" element={<AddProductTwo/>} />
-              <Route path="/StoreDetails" element={<Store/>} />        
+              <Route path="/StoreDetails" element={<Store/>} />      
+              <Route path="/updateProductPage/:id" element={<UpdateInventroy/>} />
+  
+                   
     
             </>
           ) : (

@@ -1,5 +1,5 @@
-
 import React, { useState } from "react";
+import { useEffect } from "react";
 import {
   TextField,
   Select,
@@ -13,26 +13,28 @@ import {
   Grid,
   InputLabel,
   Typography,
-  Card,
-  CardMedia,
-  IconButton,
+  // Card,
+  // CardMedia,
+  // IconButton,
   CircularProgress,
-  Box
+  Box,
 } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
-import Cookies from "js-cookie";
-import { useNavigate } from "react-router-dom";
+// import DeleteIcon from "@mui/icons-material/Delete";
 
-const AddProductPage = () => {
+import Cookies from "js-cookie";
+import { useNavigate, useParams } from "react-router-dom";
+// import { useLocation } from "react-router-dom";
+import axios from "axios";
+const UpdateInventroy = () => {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     commonDetails: {
       productCode: "",
       productName: "",
       HSNCode: "",
-      timing: [""],
+      timing: [],
       fulfillmentId: "",
-      fulfillmentOption: "",
+      fulfillmentOption: "", 
       GST_Percentage: "",
       productCategory: "",
       productSubcategory1: "",
@@ -48,7 +50,7 @@ const AddProductPage = () => {
       height: "",
       weight: "",
       isReturnable: false,
-      returnWindow: "",
+      returnWindow: "",  
       isVegetarian: false,
       manufactureName: "",
       manufactureDate: "",
@@ -65,16 +67,101 @@ const AddProductPage = () => {
       monthYearOfManufacturePackingImport: "",
       importFSSAILicenseNo: "",
       brandOwnerFSSAILicenseNo: "",
-      quantity: "",
-      MRP: "",
-      purchasePrice: "",
-      barcode: "",
-      images: [],
-      vegNonVeg: "",
+      vegNonVeg:"",
     },
   });
 
+
+
+
   const navigate = useNavigate();
+
+  // const [data, setData] = useState("");
+ 
+  // const location = useLocation();
+  // const { id } = location.state || {};
+  const{id}= useParams()
+  console.log("id is  ", id);
+  const fetchData = async () => {
+    try {
+      const token = Cookies.get("token");
+      const response = await axios.get(
+        `http://localhost:8080/product/getproduct/${id}`,
+        {
+          headers: {
+            authorization: `${token}`,
+          },
+        }
+      );
+      const fetchedData = response.data;
+      console.log("fetched data", fetchedData)
+
+      // Update the formData state with the fetched data
+      setFormData({
+        commonDetails: {
+          productCode: fetchedData.data.productCode || "",
+          productName: fetchedData.data.productName || "",
+          HSNCode: fetchedData.data.HSNCode || "",
+          timing: fetchedData.timing || [],  // assuming timing is an array
+          // images: fetchedData.images || [],  // assuming images is an array
+          fulfillmentId: fetchedData.data.fulfillmentId|| "",
+          fulfillmentOption:fetchedData.data.fulfillmentOption || "",
+          GST_Percentage:fetchedData.data.GST_Percentage || "",
+          productCategory: fetchedData.data.productCategory|| "",
+          productSubcategory1: fetchedData.data.productSubcategory1 || "",
+          productSubcategory2:fetchedData.data.productSubcategory2|| "",
+          productSubcategory3: fetchedData.data.productSubcategory3 || "",
+          maxAllowedQty: fetchedData.data.maxAllowedQty|| "",
+          countryOfOrigin: fetchedData.data.countryOfOrigin || "",
+          packQty: fetchedData.data.packQty|| "",
+          UOM:fetchedData.data.UOM || "",
+          UOMValue: fetchedData.data.UOMValue || "",
+          length:fetchedData.data.length || "",
+          breadth: fetchedData.data.breadth || "",
+          height:fetchedData.data.height || "",
+          weight: fetchedData.data.weight || "",
+          isReturnable: fetchedData.data.isReturnable? "true":"false",
+          returnWindow: fetchedData.data.returnWindow || "",
+          isVegetarian: fetchedData.data.isVegetarian? "true":"false",
+          manufactureName: fetchedData.data.manufactureName|| "",
+          manufactureDate: fetchedData.data.manufactureDate || "",
+          nutritionalInfo: fetchedData.data.nutritionalInfo || "",
+          additiveInfo: fetchedData.data.additiveInfo || "",
+          instructions: fetchedData.data.instructions || "",
+          isCancellable: fetchedData.data.isCancellable? "true":"false",
+          availableOnCOD: fetchedData.data.availableOnCOD? "true":"false",
+          longDescription: fetchedData.data.longDescription|| "",
+          description: fetchedData.data.description || "",
+          manufactureOrPackerName: fetchedData.data.manufactureOrPackerName || "",
+          manufactureOrPackerAddress: fetchedData.data.manufactureOrPackerAddress || "",
+          commonOrGenericNameOfCommodity: fetchedData.data.commonOrGenericNameOfCommodity || "",
+          monthYearOfManufacturePackingImport:fetchedData.data.monthYearOfManufacturePackingImport || "",
+          importFSSAILicenseNo: fetchedData.data.importFSSAILicenseNo || "",
+          brandOwnerFSSAILicenseNo: fetchedData.data.brandOwnerFSSAILicenseNo || "",
+          // quantity: fetchedData.data.quantity || "",
+          // MRP: fetchedData.data.MRP || "",
+          // purchasePrice: fetchedData.data.purchasePrice || "",
+          // barcode: fetchedData.data.barcode || "",
+          vegNonVeg: fetchedData.data.vegNonVeg || "",
+        },
+      });
+    } catch (error) {
+      console.error("Error fetching product data:", error);
+    }
+  };
+  useEffect(() => {
+    fetchData();
+  }, [id,]);
+
+  console.log("formdata options line 156 ",formData);
+  console.log("formdata id",formData.commonDetails.fulfillmentId);
+  
+
+  // console.log("product code ",data.data.productCode);
+  // console.log(data);
+  
+ 
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -88,50 +175,6 @@ const AddProductPage = () => {
     }));
   };
 
-  const handleTimingChange = (index, event) => {
-    const newTimings = [...formData.commonDetails.timing];
-    newTimings[index] = event.target.value;
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      commonDetails: {
-        ...prevFormData.commonDetails,
-        timing: newTimings,
-      },
-    }));
-  };
-
-  const addTimingField = () => {
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      commonDetails: {
-        ...prevFormData.commonDetails,
-        timing: [...prevFormData.commonDetails.timing, ""],
-      },
-    }));
-  };
-
-  const removeTimingField = (index) => {
-    const newTimings = [...formData.commonDetails.timing];
-    newTimings.splice(index, 1);
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      commonDetails: {
-        ...prevFormData.commonDetails,
-        timing: newTimings,
-      },
-    }));
-  };
-
-  const handleImageChange = (e) => {
-    const files = Array.from(e.target.files); 
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      commonDetails: {
-        ...prevFormData.commonDetails,
-        images: [...prevFormData.commonDetails.images, ...files], // Append selected files to existing images array
-      },
-    }));
-  };
 
   const handleChangeBool = (e) => {
     const { name, value } = e.target;
@@ -148,18 +191,71 @@ const AddProductPage = () => {
     }));
   };
 
-  // Remove image from the array
-  const removeImage = (index) => {
-    const newImages = [...formData.commonDetails.images];
-    newImages.splice(index, 1);
+
+
+  const handleTimingChange = (index, event) => {
+    const newTimings = [...formData.commonDetails.timing];
+    newTimings[index] = event.target.value;
     setFormData((prevFormData) => ({
       ...prevFormData,
       commonDetails: {
         ...prevFormData.commonDetails,
-        images: newImages,
+        timing: newTimings,
       },
     }));
   };
+
+
+
+  const addTimingField = () => {
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      commonDetails: {
+        ...prevFormData.commonDetails,
+        timing: [...prevFormData.commonDetails.timing, ""],
+      },
+    }));
+  };
+
+
+
+
+
+  const removeTimingField = (index) => {
+    const newTimings = [...formData.commonDetails.timing];
+    newTimings.splice(index, 1);
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      commonDetails: {
+        ...prevFormData.commonDetails,
+        timing: newTimings,
+      },
+    }));
+  };
+
+  // const handleImageChange = (e) => {
+  //   const files = Array.from(e.target.files); 
+  //   setFormData((prevFormData) => ({
+  //     ...prevFormData,
+  //     commonDetails: {
+  //       ...prevFormData.commonDetails,
+  //       images: [...prevFormData.commonDetails.images, ...files], // Append selected files to existing images array
+  //     },
+  //   }));
+  // };
+
+  // Remove image from the array
+  // const removeImage = (index) => {
+  //   const newImages = [...formData.commonDetails.images];
+  //   newImages.splice(index, 1);
+  //   setFormData((prevFormData) => ({
+  //     ...prevFormData,
+  //     commonDetails: {
+  //       ...prevFormData.commonDetails,
+  //       images: newImages,
+  //     },
+  //   }));
+  // };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -169,12 +265,12 @@ const AddProductPage = () => {
       console.log(token);
 
       const response = await fetch(
-        "http://localhost:8080/product/ProductCreate",
+         `http://localhost:8080/product/products/${id}`,
         {
-          method: "POST",
+          method: "put",
           headers: {
             "Content-Type": "application/json",
-            authorization: `${token}`,
+            authorization:`${token}`,
           },
           body: JSON.stringify(formData),
         }
@@ -183,7 +279,7 @@ const AddProductPage = () => {
       const data = await response.json();
       console.log("data ", data);
 
-      if (data.success === true) {
+      if (data.message === "Successfully updated") {
         alert("Successfully added");
         console.log("Successfully added");
       }
@@ -210,7 +306,7 @@ const AddProductPage = () => {
         </Button>
       </div>
       <div style={{ marginBottom: "16px" }}>
-        <Typography variant="h6">Add Product</Typography>
+        <Typography variant="h6"> UPDATE  PRODUCT</Typography>
       </div>
       <div
         style={{
@@ -283,7 +379,7 @@ const AddProductPage = () => {
                 <MenuItem value={0}>0%</MenuItem>
                 <MenuItem value={3}>3%</MenuItem>
                 <MenuItem value={5}>5%</MenuItem>
-                <MenuItem value={12}>12%</MenuItem>
+                <MenuItem value={12}>12%</MenuItem>+
                 <MenuItem value={18}>18%</MenuItem>
                 <MenuItem value={28}>28%</MenuItem>
               </Select>
@@ -707,16 +803,6 @@ const AddProductPage = () => {
             />
           </Grid>
 
-          {/* <Grid item xs={12} sm={6}>
-            <TextField
-              label="Return Window"
-              name="returnWindow"
-              value={formData.commonDetails.returnWindow}
-              onChange={handleChange}
-              fullWidth
-              required
-            />
-          </Grid> */}
 
           <Grid item xs={12} sm={6}>
       <FormControl fullWidth required>
@@ -810,6 +896,7 @@ const AddProductPage = () => {
                 value={formData.commonDetails.isVegetarian}
                 onChange={handleChangeBool}
                 required
+                type="boolian"
               >
                 <FormControlLabel
                   value="true"
@@ -817,7 +904,8 @@ const AddProductPage = () => {
                   label="Yes"
                 />
                 <FormControlLabel
-                  value="false"                  control={<Radio />}
+                  value="false" 
+               control={<Radio />}
                   label="No"
                 />
               </RadioGroup>
@@ -1042,97 +1130,7 @@ const AddProductPage = () => {
               fullWidth
             />
           </Grid>
-          <Grid item xs={12} sm={3}>
-            <TextField
-              label="Quantity"
-              name="quantity"
-              type="number"
-              value={formData.commonDetails.quantity}
-              onChange={handleChange}
-              required
-              fullWidth
-            />
-          </Grid>
-          <Grid item xs={12} sm={3}>
-            <TextField
-              label="MRP"
-              name="MRP"
-              type="number"
-              value={formData.commonDetails.MRP}
-              onChange={handleChange}
-              required
-              fullWidth
-            />
-          </Grid>
-          <Grid item xs={12} sm={3}>
-            <TextField
-              label="Purchase Price"
-              name="purchasePrice"
-              type="number"
-              value={formData.commonDetails.purchasePrice}
-              onChange={handleChange}
-              required
-              fullWidth
-            />
-          </Grid>
-          <Grid item xs={12} sm={3}>
-            <TextField
-              label="Barcode"
-              name="barcode"
-              type="number"
-              value={formData.commonDetails.barcode}
-              onChange={handleChange}
-              required
-              fullWidth
-            />
-          </Grid>
-          {/* <Grid item xs={12}>
-            <TextField
-              label="Images"
-              name="images"
-              type="file"
-              onChange={handleChange}
-              fullWidth
-            />
-          </Grid> */}
-
-          <Grid item xs={12}>
-            <Typography variant="h6">Upload Images</Typography>
-            <input
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={handleImageChange}
-            />
-          </Grid>
-
-          {/* Image Preview */}
-          {formData.commonDetails.images.length > 0 && (
-            <Grid item xs={12}>
-              <Typography variant="h6">Image Previews</Typography>
-              <Grid container spacing={2}>
-                {formData.commonDetails.images.map((image, index) => (
-                  <Grid item xs={3} key={index}>
-                    <Card>
-                      <CardMedia
-                        component="img"
-                        height="140"
-                        image={URL.createObjectURL(image)} // Create a URL for preview
-                        alt={`image ${index + 1}`}
-                      />
-                      <IconButton
-                        onClick={() => removeImage(index)}
-                        aria-label="delete"
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </Card>
-                  </Grid>
-                ))}
-              </Grid>
-            </Grid>
-          )}
-
+ 
 
           <Grid item xs={12}>
             <Box display="flex" justifyContent="center">
@@ -1156,4 +1154,4 @@ const AddProductPage = () => {
   );
 };
 
-export default AddProductPage;
+export default UpdateInventroy;

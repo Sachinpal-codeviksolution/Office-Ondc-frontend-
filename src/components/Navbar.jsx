@@ -44,8 +44,8 @@ export default function Navbar() {
  },[])
  
  const {email_id}=decodeToken
-
- 
+  
+   
 
  const handleLogout = async (e) => {
   e.preventDefault();
@@ -79,6 +79,9 @@ export default function Navbar() {
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
   };
+  const handleUpdate = ()=>{
+    navigate("/Updatemultistepform")
+  }
 
   const handleMobileMenuClose = () => {
     setMobileMoreAnchorEl(null);
@@ -113,6 +116,7 @@ export default function Navbar() {
       <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
       <MenuItem onClick={handleMenuClose}>My account</MenuItem>
       <MenuItem onClick={handleLogout}>Logout</MenuItem>
+      <MenuItem onClick={handleUpdate}>Update Info</MenuItem>
       <MenuItem
         onClick={() => {
           navigate("/register");
