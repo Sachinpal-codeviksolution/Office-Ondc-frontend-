@@ -7,9 +7,9 @@ import {
   ThemeProvider,
   createTheme,
   TextField,
-  FormControl,
-  InputLabel,
-  Select,
+  // FormControl,
+  // InputLabel,
+  // Select,
   MenuItem,
   Table,
   TableBody,
@@ -43,7 +43,7 @@ const theme = createTheme({
 });
 
 function Inventory() {
-  const [productCategory, setProductCategory] = useState("");
+  // const [productCategory, setProductCategory] = useState("");
   const [checked, setChecked] = useState(false);
   const [anchorEls, setAnchorEls] = useState({}); // Array to store anchorEl for each row
   const [searchQuery, setSearchQuery] = useState("");
@@ -59,7 +59,39 @@ function Inventory() {
     const fetchData = async () => {
       try {
         const token = Cookies.get("token");
-        console.log("token at line no. 60 in inventory.jsx :", token);
+
+        // If there is a search query, include it in the API call as a query parameter
+        const apiUrl = searchQuery
+          ? `http://localhost:8080/product/search?name=${searchQuery}`
+          : "http://localhost:8080/product/products";
+
+        const response = await fetch(apiUrl, {
+          headers: {
+            authorization: `${token}`, // Replace with actual token
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        const data = await response.json();
+        setFilteredData(data);
+        setLoading(false);
+      } catch (error) {
+        setError(error.message);
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [searchQuery]); // Run useEffect when searchQuery changes
+
+  useEffect(() => {
+    // Function to fetch product data from API
+    const fetchData = async () => {
+      try {
+        const token = Cookies.get("token");
         const response = await fetch("http://localhost:8080/product/products", {
           headers: {
             authorization: `${token}`, // Replace with actual token
@@ -71,7 +103,6 @@ function Inventory() {
         }
 
         const data = await response.json();
-        console.log("line no 74 ", data);
         setFilteredData(data);
         setLoading(false);
       } catch (error) {
@@ -83,9 +114,9 @@ function Inventory() {
     fetchData();
   }, []);
 
-  const handleCategoryChange = (event) => {
-    setProductCategory(event.target.value);
-  };
+  // const handleCategoryChange = (event) => {
+  //   setProductCategory(event.target.value);
+  // };
 
   const handleChangeChecked = (event) => {
     setChecked(event.target.checked);
@@ -110,36 +141,44 @@ function Inventory() {
   };
 
   // Filter data based on search and category
-  const handleFilter = () => {
-    let data = filteredData;
+  const handleFilter = async () => {
+    let stock = "";
 
-    if (searchQuery) {
-      data = data.filter((item) =>
-        item.name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-
-    if (productCategory) {
-      data = data.filter((item) => item.type === productCategory);
-    }
     if (checked) {
-      // Add any specific out-of-stock filter logic if needed
-      data = data.filter((item) => item.quantity === 0);
+      stock = "outOfStock"; // Set stock filter to outOfStock when checked
+    } else {
+      stock = "inStock"; // Set stock filter to inStock when not checked
     }
 
-    setFilteredData(data);
-    setPage(0); // Reset to the first page after filtering
+    try {
+      const token = Cookies.get("token");
+      const response = await fetch(`http://localhost:8080/product/search?name=${searchQuery}&stock=${stock}`, {
+        headers: {
+          authorization: `${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const data = await response.json();
+      console.log("Filtered data:", data);
+      setFilteredData(data);
+      setPage(0); // Reset to the first page after filtering
+    } catch (error) {
+      setError(error.message);
+    }
   };
 
   // Reset filters
   const handleReset = () => {
     setSearchQuery("");
-    setProductCategory("");
+    // setProductCategory("");
     setChecked(false);
     // Fetch fresh data after reset
     const fetchData = async () => {
       const token = Cookies.get("token");
-      console.log("token at line no. 136 in inventory.jsx :", token);
       try {
         const response = await fetch("http://localhost:8080/product/products", {
           headers: {
@@ -152,7 +191,6 @@ function Inventory() {
         }
 
         const data = await response.json();
-        console.log("line 151", data);
         setFilteredData(data);
         setPage(0); // Reset to the first page after reset
       } catch (error) {
@@ -211,71 +249,86 @@ function Inventory() {
           <div className="">
             <ThemeProvider theme={theme}>
               {/* Filter Section */}
+              
               <Grid container spacing={2} alignItems="center" sx={{ px: 2 }}>
                 <Grid item xs={12}>
-                  <Typography color="primary" sx={{ fontWeight: "bold" }}>
+                  {/* <Typography color="primary" sx={{ fontWeight: "bold" }}>
                     Filters
-                  </Typography>
+                  </Typography> */}
                 </Grid>
-                <Grid item xs={12} sm={4}>
-                  <TextField
-                    id="standard-search"
-                    label="Search by Product Name"
-                    type="search"
-                    variant="standard"
-                    value={searchQuery}
-                    onChange={handleSearchChange}
-                    sx={{ width: "100%" }}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={4}>
-                  <FormControl variant="standard" sx={{ width: "100%" }}>
-                    <InputLabel id="demo-simple-select-standard-label">
-                      Please Select Product Category
-                    </InputLabel>
-                    <Select
-                      labelId="demo-simple-select-standard-label"
-                      id="select_product"
-                      value={productCategory}
-                      onChange={handleCategoryChange}
-                      label="Please Select Product Category"
-                    >
-                      <MenuItem value=""></MenuItem>
-                      <MenuItem value="Product">Product</MenuItem>
-                      <MenuItem value="Customization">Customization</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
-                <Grid item xs={12} sm={2}>
-                  <Stack direction="row" spacing={1} alignItems="center">
-                    <Typography>Out of Stock</Typography>
-                    <Switch
-                      checked={checked}
-                      onChange={handleChangeChecked}
-                      inputProps={{ "aria-label": "controlled" }}
+                <Grid
+                  container
+                  justifyContent="center"
+                  alignItems="center"
+                  spacing={2}
+                  textAlign="center"
+                >
+                  <Grid item xs={12} sm={4}>
+                    <TextField
+                      id="standard-search"
+                      label="Search by Product Name"
+                      type="search"
+                      variant="standard"
+                      value={searchQuery}
+                      onChange={handleSearchChange}
+                      sx={{ width: "100%" }}
                     />
-                  </Stack>
-                </Grid>
-                <Grid item xs={12} sm={2}>
-                  <Stack direction="row" spacing={1}>
-                    <Button
-                      variant="outlined"
-                      color="primary"
-                      onClick={handleReset}
-                    >
-                      RESET
-                    </Button>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={handleFilter}
-                    >
-                      FILTER
-                    </Button>
-                  </Stack>
-                </Grid>
-              </Grid>
+                  </Grid>
 
+                  {/* Uncomment this block for product category select */}
+                  {/* 
+  <Grid item xs={12} sm={4}>
+    <FormControl variant="standard" sx={{ width: "100%" }}>
+      <InputLabel id="demo-simple-select-standard-label">
+        Please Select Product Category
+      </InputLabel>
+      <Select
+        labelId="demo-simple-select-standard-label"
+        id="select_product"
+        value={productCategory}
+        onChange={handleCategoryChange}
+        label="Please Select Product Category"
+      >
+        <MenuItem value=""></MenuItem>
+        <MenuItem value="Product">Product</MenuItem>
+        <MenuItem value="Customization">Customization</MenuItem>
+      </Select>
+    </FormControl>
+  </Grid> 
+  */}
+
+                  <Grid item xs={12} sm={2}>
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      <Typography>Out of Stock</Typography>
+                      <Switch
+                        checked={checked}
+                        onChange={handleChangeChecked}
+                        inputProps={{ "aria-label": "controlled" }}
+                      />
+                    </Stack>
+                  </Grid>
+
+                  <Grid item xs={12} sm={2}>
+                    <Stack direction="row" spacing={1}>
+                      <Button
+                        variant="outlined"
+                        color="primary"
+                        onClick={handleReset}
+                      >
+                        RESET
+                      </Button>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={handleFilter}
+                      >
+                        FILTER
+                      </Button>
+                    </Stack>
+                  </Grid>
+                </Grid>
+
+              </Grid>
               <Box height="20px" />
 
               {/* Action Buttons */}

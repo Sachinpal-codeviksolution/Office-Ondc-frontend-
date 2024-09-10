@@ -82,6 +82,9 @@ export default function Navbar() {
   const handleUpdate = ()=>{
     navigate("/Updatemultistepform")
   }
+  const handleUpdateStore =()=>{
+    navigate("/Updatestore")
+  }
 
   const handleMobileMenuClose = () => {
     setMobileMoreAnchorEl(null);
@@ -96,6 +99,7 @@ export default function Navbar() {
     setMobileMoreAnchorEl(event.currentTarget);
   };
 
+   
   const menuId = "primary-search-account-menu";
   const renderMenu = (
     <Menu
@@ -117,6 +121,10 @@ export default function Navbar() {
       <MenuItem onClick={handleMenuClose}>My account</MenuItem>
       <MenuItem onClick={handleLogout}>Logout</MenuItem>
       <MenuItem onClick={handleUpdate}>Update Info</MenuItem>
+      <MenuItem onClick={handleUpdateStore}>Update Store </MenuItem>
+
+
+     
       <MenuItem
         onClick={() => {
           navigate("/register");

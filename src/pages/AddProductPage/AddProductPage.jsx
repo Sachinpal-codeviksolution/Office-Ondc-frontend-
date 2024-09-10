@@ -22,6 +22,10 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
+import Navbar from "../../components/Navbar";
+import Sidebar from "../../components/Sidebar";
+import { toast } from "react-toastify";
+
 
 const AddProductPage = () => {
   const [loading, setLoading] = useState(false);
@@ -184,7 +188,7 @@ const AddProductPage = () => {
       console.log("data ", data);
 
       if (data.success === true) {
-        alert("Successfully added");
+        toast.success("Successfully added");
         console.log("Successfully added");
       }
       navigate("/inventory")
@@ -196,7 +200,14 @@ const AddProductPage = () => {
   };
 
   return (
-    <div
+    <>
+  <Navbar/>
+  {/* <Box height={60} /> */}
+  <Box height="30px" />
+  <Box sx={{ display: "flex" }}>
+  <Sidebar />
+  <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+  <div
       style={{
         padding: "16px",
         display: "flex",
@@ -204,13 +215,9 @@ const AddProductPage = () => {
         gap: "16px",
       }}
     >
+
       <div style={{ marginBottom: "16px" }}>
-        <Button variant="outlined" onClick={() => navigate("/inventory")}>
-          Back
-        </Button>
-      </div>
-      <div style={{ marginBottom: "16px" }}>
-        <Typography variant="h6">Add Product</Typography>
+        <Typography variant="h6" textAlign="center"   sx={{ fontWeight: 'bold' }} >ADD PRODUCT</Typography>
       </div>
       <div
         style={{
@@ -1153,6 +1160,10 @@ const AddProductPage = () => {
         </Grid>
       </form>
     </div>
+  </Box>
+  </Box>
+  
+    </>
   );
 };
 

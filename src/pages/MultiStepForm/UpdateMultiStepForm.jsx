@@ -1,42 +1,24 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Button,
   Container,
   Grid,
   TextField,
-  Stepper,
-  Step,
-  StepLabel,
-  Input,
   CircularProgress,
+  Input,
+  Typography,
+  Box,
 } from "@mui/material";
 import { toast } from "react-toastify";
 import Cookies from "js-cookie";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../store/AuthContext";
-
-const steps = [
-  "Personal Information",
-  "KYC Information",
-  "Upload Documents",
-  "Bank Details",
-];
+import Navbar from "../../components/Navbar";
+import Sidebar from "../../components/Sidebar";
 
 const UpdateMultiStepForm = () => {
-  const navigate = useNavigate();
-  const { sellerRegister } = useAuth();
-  const api = process.env.REACT_APP_API;
-  
-  const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState({
     detailsOfProvider: {
       email: "",
       mobileNumber: "",
-      Orgname: "",
-      password: "",
-      role: "OrganizationAdmin",
-      accessStatus: true,
-      isApprovedByAdmin: true,
     },
     KYCdetails: {
       providerName: "",
@@ -48,10 +30,10 @@ const UpdateMultiStepForm = () => {
       FSSAINo: "",
     },
     KYCurl: {
-      address: null,
-      idProof: null,
-      pan: null,
-      gst: null,
+      address: "",
+      idProof: "",
+      pan: "",
+      gst: "",
     },
     bankDetails: {
       accountHolderName: "",
@@ -59,18 +41,80 @@ const UpdateMultiStepForm = () => {
       bankName: "",
       branchName: "",
       ifscCode: "",
-      cancelledChequeURL: null,
+      cancelledChequeURL: "",
     },
   });
-
   const [formErrors, setFormErrors] = useState({});
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const token = Cookies.get("token");
+    if (!token) {
+      console.error("No token found");
+      return;
+    }
+
+    const fetchProfile = async () => {
+      try {
+        const response = await fetch(
+          "http://localhost:8080/dashboard/getAdminProfile",
+          {
+            method: "GET",
+            headers: {
+              authorization: `${token}`,
+            },
+          }
+        );
+        const data = await response.json();
+        console.log("Fetch data", data);
+
+        if (data.success === true) {
+          setFormData({
+            detailsOfProvider: {
+              email: data.data.UserDetails.email,
+              mobileNumber: data.data.UserDetails.mobileNumber,
+            },
+            KYCdetails: {
+              providerName: data.data.OrganizationDetails.providerName,
+              registeredAdd: data.data.OrganizationDetails.registeredAdd,
+              storeEmail: data.data.OrganizationDetails.storeEmail,
+              mobileNo: data.data.OrganizationDetails.mobileNo,
+              PANNo: data.data.OrganizationDetails.PANNo,
+              GSTIN: data.data.OrganizationDetails.GSTIN,
+              FSSAINo: data.data.OrganizationDetails.FSSAINo,
+            },
+            KYCurl: {
+              address: data.data.OrganizationDetails.addressURL,
+              idProof: data.data.OrganizationDetails.idProofURL,
+              pan: data.data.OrganizationDetails.panURL,
+              gst: data.data.OrganizationDetails.gstURL,
+            },
+            bankDetails: {
+              accountHolderName: data.data.BankDetails.accHolderName,
+              accountNo: data.data.BankDetails.accNo,
+              bankName: data.data.BankDetails.bankName,
+              branchName: data.data.BankDetails.branchName,
+              ifscCode: data.data.BankDetails.ifscCode,
+              cancelledChequeURL: data.data.BankDetails.cancelledChequeUrl,
+            },
+          });
+        } else {
+          console.log("Data fetch failed");
+        }
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+      }
+    };
+
+    fetchProfile();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
 
     if (type === "file") {
-      const fileName = files[0] ? files[0].name : null;
+      // File inputs cannot be set programmatically. Show preview or URL instead.
+      const fileName = files[0] ? files[0].name : "";
 
       setFormData((prevState) => {
         const [step, field] = name.split(".");
@@ -98,6 +142,7 @@ const UpdateMultiStepForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const token = Cookies.get("token");
     const errors = {};
     let hasErrors = false;
 
@@ -106,7 +151,6 @@ const UpdateMultiStepForm = () => {
         Object.keys(formData[key]).forEach((subKey) => {
           if (
             !formData[key][subKey] &&
-            subKey !== "cancelledChequeURL" &&
             subKey !== "address" &&
             subKey !== "idProof" &&
             subKey !== "pan" &&
@@ -129,30 +173,25 @@ const UpdateMultiStepForm = () => {
 
     setLoading(true);
     try {
-      const response = await fetch(`${api}adminRegister`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+      const response = await fetch(
+        `http://localhost:8080/dashboard/adminProfileUpdate`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `${token}`,
+          },
+          body: JSON.stringify(formData),
+        }
+      );
       const data = await response.json();
       toast(data.message);
-      if (data.message === "Seller added successfully") {
-        const token = data.token;
-        Cookies.set("token", token);
-        sellerRegister();
-        navigate("/StoreDetails");
-        setCurrentStep(0);
+      if (data.success === true) {
+        alert("Update successful");
         setFormData({
           detailsOfProvider: {
             email: "",
             mobileNumber: "",
-            Orgname: "",
-            password: "",
-            role: "OrganizationAdmin",
-            accessStatus: true,
-            isApprovedByAdmin: true,
           },
           KYCdetails: {
             providerName: "",
@@ -164,10 +203,10 @@ const UpdateMultiStepForm = () => {
             FSSAINo: "",
           },
           KYCurl: {
-            address: null,
-            idProof: null,
-            pan: null,
-            gst: null,
+            address: "",
+            idProof: "",
+            pan: "",
+            gst: "",
           },
           bankDetails: {
             accountHolderName: "",
@@ -175,7 +214,7 @@ const UpdateMultiStepForm = () => {
             bankName: "",
             branchName: "",
             ifscCode: "",
-            cancelledChequeURL: null,
+            cancelledChequeURL: "",
           },
         });
         setFormErrors({});
@@ -189,440 +228,339 @@ const UpdateMultiStepForm = () => {
     }
   };
 
-  const nextStep = () => {
-    setCurrentStep((prevStep) => prevStep + 1);
-  };
-
-  const prevStep = () => {
-    setCurrentStep((prevStep) => prevStep - 1);
-  };
-
   return (
-    <Container maxWidth="md">
-      <Stepper activeStep={currentStep} alternativeLabel>
-        {steps.map((label, index) => (
-          <Step key={index}>
-            <StepLabel
-              sx={{
-                fontWeight: "700",
-                color: "primary.main",
-                fontSize: "2rem",
-                textTransform: "uppercase",
-              }}
+    <>
+      <Navbar />
+      <Box height="50px" />
+      <Box sx={{ display: "flex" }}>
+        <Sidebar />
+        <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+          <Container>
+            <Typography
+              align="center"
+              variant="h4"
+              marginTop="10px"
+              sx={{ fontWeight: "bold" }}
             >
-              {label}
-            </StepLabel>
-          </Step>
-        ))}
-      </Stepper>
-      <form onSubmit={handleSubmit}>
-        {currentStep === 0 && (
-          <Grid container spacing={1} sx={{ marginTop: 4 }}>
-            <Grid item xs={12}>
-              <TextField
-                sx={{ fontFamily: "lato" }}
-                required
-                fullWidth
-                label="Email"
-                name="detailsOfProvider.email"
-                value={formData.detailsOfProvider.email}
-                onChange={handleChange}
-                error={Boolean(formErrors["detailsOfProvider.email"])}
-                helperText={
-                  formErrors["detailsOfProvider.email"] && "Email is required"
-                }
-                inputProps={{ style: { fontFamily: "lato" } }}
-                InputLabelProps={{ style: { fontFamily: "lato" } }}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                required
-                fullWidth
-                label="Mobile Number"
-                name="detailsOfProvider.mobileNumber"
-                value={formData.detailsOfProvider.mobileNumber}
-                onChange={handleChange}
-                error={Boolean(formErrors["detailsOfProvider.mobileNumber"])}
-                helperText={
-                  formErrors["detailsOfProvider.mobileNumber"] &&
-                  "Mobile Number is required"
-                }
-                inputProps={{ style: { fontFamily: "lato" } }}
-                InputLabelProps={{ style: { fontFamily: "lato" } }}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                required
-                fullWidth
-                label="Name"
-                name="detailsOfProvider.Orgname"
-                value={formData.detailsOfProvider.Orgname}
-                onChange={handleChange}
-                error={Boolean(formErrors["detailsOfProvider.Orgname"])}
-                helperText={
-                  formErrors["detailsOfProvider.Orgname"] && "Name is required"
-                }
-                inputProps={{ style: { fontFamily: "lato" } }}
-                InputLabelProps={{ style: { fontFamily: "lato" } }}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                required
-                fullWidth
-                label="Password"
-                type="password"
-                name="detailsOfProvider.password"
-                value={formData.detailsOfProvider.password}
-                onChange={handleChange}
-                error={Boolean(formErrors["detailsOfProvider.password"])}
-                helperText={
-                  formErrors["detailsOfProvider.password"] &&
-                  "Password is required"
-                }
-                inputProps={{ style: { fontFamily: "lato" } }}
-                InputLabelProps={{ style: { fontFamily: "lato" } }}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                required
-                fullWidth
-                label="Role"
-                name="detailsOfProvider.role"
-                value={formData.detailsOfProvider.role}
-                onChange={handleChange}
-                error={Boolean(formErrors["detailsOfProvider.role"])}
-                helperText={
-                  formErrors["detailsOfProvider.role"] && "Role is required"
-                }
-                inputProps={{ style: { fontFamily: "lato" } }}
-                InputLabelProps={{ style: { fontFamily: "lato" } }}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                required
-                fullWidth
-                label="Access Status"
-                name="detailsOfProvider.accessStatus"
-                value={formData.detailsOfProvider.accessStatus}
-                onChange={handleChange}
-                error={Boolean(formErrors["detailsOfProvider.accessStatus"])}
-                helperText={
-                  formErrors["detailsOfProvider.accessStatus"] &&
-                  "Access Status is required"
-                }
-                inputProps={{ style: { fontFamily: "lato" } }}
-                InputLabelProps={{ style: { fontFamily: "lato" } }}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                required
-                fullWidth
-                label="Approval Status"
-                name="detailsOfProvider.isApprovedByAdmin"
-                value={formData.detailsOfProvider.isApprovedByAdmin}
-                onChange={handleChange}
-                error={Boolean(formErrors["detailsOfProvider.isApprovedByAdmin"])}
-                helperText={
-                  formErrors["detailsOfProvider.isApprovedByAdmin"] &&
-                  "Approval Status is required"
-                }
-                inputProps={{ style: { fontFamily: "lato" } }}
-                InputLabelProps={{ style: { fontFamily: "lato" } }}
-              />
-            </Grid>
-          </Grid>
-        )}
-        {currentStep === 1 && (
-          <Grid container spacing={2} sx={{ marginTop: 2 }}>
-            <Grid item xs={12}>
-              <TextField
-                required
-                fullWidth
-                label="Provider Name"
-                name="KYCdetails.providerName"
-                value={formData.KYCdetails.providerName}
-                onChange={handleChange}
-                error={Boolean(formErrors["KYCdetails.providerName"])}
-                helperText={
-                  formErrors["KYCdetails.providerName"] && "Provider Name is required"
-                }
-                inputProps={{ style: { fontFamily: "lato" } }}
-                InputLabelProps={{ style: { fontFamily: "lato" } }}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                required
-                fullWidth
-                label="Registered Address"
-                name="KYCdetails.registeredAdd"
-                value={formData.KYCdetails.registeredAdd}
-                onChange={handleChange}
-                error={Boolean(formErrors["KYCdetails.registeredAdd"])}
-                helperText={
-                  formErrors["KYCdetails.registeredAdd"] && "Registered Address is required"
-                }
-                inputProps={{ style: { fontFamily: "lato" } }}
-                InputLabelProps={{ style: { fontFamily: "lato" } }}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                required
-                fullWidth
-                label="Store Email"
-                name="KYCdetails.storeEmail"
-                value={formData.KYCdetails.storeEmail}
-                onChange={handleChange}
-                error={Boolean(formErrors["KYCdetails.storeEmail"])}
-                helperText={
-                  formErrors["KYCdetails.storeEmail"] && "Store Email is required"
-                }
-                inputProps={{ style: { fontFamily: "lato" } }}
-                InputLabelProps={{ style: { fontFamily: "lato" } }}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                required
-                fullWidth
-                label="Mobile Number"
-                name="KYCdetails.mobileNo"
-                value={formData.KYCdetails.mobileNo}
-                onChange={handleChange}
-                error={Boolean(formErrors["KYCdetails.mobileNo"])}
-                helperText={
-                  formErrors["KYCdetails.mobileNo"] && "Mobile Number is required"
-                }
-                inputProps={{ style: { fontFamily: "lato" } }}
-                InputLabelProps={{ style: { fontFamily: "lato" } }}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                required
-                fullWidth
-                label="PAN Number"
-                name="KYCdetails.PANNo"
-                value={formData.KYCdetails.PANNo}
-                onChange={handleChange}
-                error={Boolean(formErrors["KYCdetails.PANNo"])}
-                helperText={
-                  formErrors["KYCdetails.PANNo"] && "PAN Number is required"
-                }
-                inputProps={{ style: { fontFamily: "lato" } }}
-                InputLabelProps={{ style: { fontFamily: "lato" } }}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                required
-                fullWidth
-                label="GSTIN"
-                name="KYCdetails.GSTIN"
-                value={formData.KYCdetails.GSTIN}
-                onChange={handleChange}
-                error={Boolean(formErrors["KYCdetails.GSTIN"])}
-                helperText={
-                  formErrors["KYCdetails.GSTIN"] && "GSTIN is required"
-                }
-                inputProps={{ style: { fontFamily: "lato" } }}
-                InputLabelProps={{ style: { fontFamily: "lato" } }}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                required
-                fullWidth
-                label="FSSAI Number"
-                name="KYCdetails.FSSAINo"
-                value={formData.KYCdetails.FSSAINo}
-                onChange={handleChange}
-                error={Boolean(formErrors["KYCdetails.FSSAINo"])}
-                helperText={
-                  formErrors["KYCdetails.FSSAINo"] && "FSSAI Number is required"
-                }
-                inputProps={{ style: { fontFamily: "lato" } }}
-                InputLabelProps={{ style: { fontFamily: "lato" } }}
-              />
-            </Grid>
-          </Grid>
-        )}
-        {currentStep === 2 && (
-          <Grid container spacing={8} sx={{ marginTop: 4 }}>
-            <Grid item xs={12}>
-            <p>Address Proof</p>
-              <Input
-                type="file"
-                name="KYCurl.address"
-                onChange={handleChange}
-                fullWidth
-              />
-              {formData.KYCurl.address && <p>{formData.KYCurl.address}</p>}
-            </Grid>
-           
+              Update Seller Info
+            </Typography>
+            <form onSubmit={handleSubmit}>
+              <Grid container spacing={4} sx={{ marginTop: 4 }}>
+                {/* Personal Information */}
+                <Grid item xs={12}>
+                  <TextField
+                    required
+                    fullWidth
+                    label="Email"
+                    name="detailsOfProvider.email"
+                    value={formData.detailsOfProvider.email}
+                    onChange={handleChange}
+                    error={Boolean(formErrors["detailsOfProvider.email"])}
+                    helperText={
+                      formErrors["detailsOfProvider.email"] &&
+                      "Email is required"
+                    }
+                    inputProps={{ style: { fontFamily: "lato" } }}
+                    InputLabelProps={{ style: { fontFamily: "lato" } }}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    required
+                    fullWidth
+                    label="Mobile Number"
+                    name="detailsOfProvider.mobileNumber"
+                    value={formData.detailsOfProvider.mobileNumber}
+                    onChange={handleChange}
+                    error={Boolean(
+                      formErrors["detailsOfProvider.mobileNumber"]
+                    )}
+                    helperText={
+                      formErrors["detailsOfProvider.mobileNumber"] &&
+                      "Mobile Number is required"
+                    }
+                    inputProps={{ style: { fontFamily: "lato" } }}
+                    InputLabelProps={{ style: { fontFamily: "lato" } }}
+                  />
+                </Grid>
 
-            <Grid item xs={12}>
-            <p>ID Proof </p>
-              <Input
-                type="file"
-                name="KYCurl.idProof"
-                onChange={handleChange}
-                fullWidth
-              />
-              {formData.KYCurl.idProof && <p>{formData.KYCurl.idProof}</p>}
-            </Grid>
-            <Grid item xs={12}>
-            <p>PAN Card Proof</p>
+                {/* KYC Information */}
+                <Grid item xs={12}>
+                  <TextField
+                    required
+                    fullWidth
+                    label="Provider Name"
+                    name="KYCdetails.providerName"
+                    value={formData.KYCdetails.providerName}
+                    onChange={handleChange}
+                    error={Boolean(formErrors["KYCdetails.providerName"])}
+                    helperText={
+                      formErrors["KYCdetails.providerName"] &&
+                      "Provider Name is required"
+                    }
+                    inputProps={{ style: { fontFamily: "lato" } }}
+                    InputLabelProps={{ style: { fontFamily: "lato" } }}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    required
+                    fullWidth
+                    label="Registered Address"
+                    name="KYCdetails.registeredAdd"
+                    value={formData.KYCdetails.registeredAdd}
+                    onChange={handleChange}
+                    error={Boolean(formErrors["KYCdetails.registeredAdd"])}
+                    helperText={
+                      formErrors["KYCdetails.registeredAdd"] &&
+                      "Registered Address is required"
+                    }
+                    inputProps={{ style: { fontFamily: "lato" } }}
+                    InputLabelProps={{ style: { fontFamily: "lato" } }}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    required
+                    fullWidth
+                    label="Store Email"
+                    name="KYCdetails.storeEmail"
+                    value={formData.KYCdetails.storeEmail}
+                    onChange={handleChange}
+                    error={Boolean(formErrors["KYCdetails.storeEmail"])}
+                    helperText={
+                      formErrors["KYCdetails.storeEmail"] &&
+                      "Store Email is required"
+                    }
+                    inputProps={{ style: { fontFamily: "lato" } }}
+                    InputLabelProps={{ style: { fontFamily: "lato" } }}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    required
+                    fullWidth
+                    label="Mobile No"
+                    name="KYCdetails.mobileNo"
+                    value={formData.KYCdetails.mobileNo}
+                    onChange={handleChange}
+                    error={Boolean(formErrors["KYCdetails.mobileNo"])}
+                    helperText={
+                      formErrors["KYCdetails.mobileNo"] &&
+                      "Mobile No is required"
+                    }
+                    inputProps={{ style: { fontFamily: "lato" } }}
+                    InputLabelProps={{ style: { fontFamily: "lato" } }}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    required
+                    fullWidth
+                    label="PAN No"
+                    name="KYCdetails.PANNo"
+                    value={formData.KYCdetails.PANNo}
+                    onChange={handleChange}
+                    error={Boolean(formErrors["KYCdetails.PANNo"])}
+                    helperText={
+                      formErrors["KYCdetails.PANNo"] && "PAN No is required"
+                    }
+                    inputProps={{ style: { fontFamily: "lato" } }}
+                    InputLabelProps={{ style: { fontFamily: "lato" } }}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    required
+                    fullWidth
+                    label="GSTIN"
+                    name="KYCdetails.GSTIN"
+                    value={formData.KYCdetails.GSTIN}
+                    onChange={handleChange}
+                    error={Boolean(formErrors["KYCdetails.GSTIN"])}
+                    helperText={
+                      formErrors["KYCdetails.GSTIN"] && "GSTIN is required"
+                    }
+                    inputProps={{ style: { fontFamily: "lato" } }}
+                    InputLabelProps={{ style: { fontFamily: "lato" } }}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="FSSAI No"
+                    name="KYCdetails.FSSAINo"
+                    value={formData.KYCdetails.FSSAINo}
+                    onChange={handleChange}
+                    error={Boolean(formErrors["KYCdetails.FSSAINo"])}
+                    helperText={
+                      formErrors["KYCdetails.FSSAINo"] && "FSSAI No is required"
+                    }
+                    inputProps={{ style: { fontFamily: "lato" } }}
+                    InputLabelProps={{ style: { fontFamily: "lato" } }}
+                  />
+                </Grid>
 
-              <Input
-                type="file"
-                name="KYCurl.pan"
-                onChange={handleChange}
-                fullWidth
-              />
-              {formData.KYCurl.pan && <p>{formData.KYCurl.pan}</p>}
-            </Grid>
-            <Grid item xs={12}>
-            <p>GSTIN Proof</p>
+                {/* Upload Documents */}
+                <Grid item xs={12}>
+                  <Typography>
+                    Address Proof: {formData.KYCurl.address}
+                  </Typography>
+                  <Input
+                    fullWidth
+                    type="file"
+                    name="KYCurl.address"
+                    onChange={handleChange}
+                    inputProps={{ style: { fontFamily: "lato" } }}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography>ID Proof: {formData.KYCurl.idProof}</Typography>
+                  <Input
+                    fullWidth
+                    type="file"
+                    name="KYCurl.idProof"
+                    onChange={handleChange}
+                    inputProps={{ style: { fontFamily: "lato" } }}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography>PAN: {formData.KYCurl.pan}</Typography>
+                  <Input
+                    fullWidth
+                    type="file"
+                    name="KYCurl.pan"
+                    onChange={handleChange}
+                    inputProps={{ style: { fontFamily: "lato" } }}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography>GST: {formData.KYCurl.gst}</Typography>
+                  <Input
+                    fullWidth
+                    type="file"
+                    name="KYCurl.gst"
+                    onChange={handleChange}
+                    inputProps={{ style: { fontFamily: "lato" } }}
+                  />
+                </Grid>
 
-              <Input
-                type="file"
-                name="KYCurl.gst"
-                onChange={handleChange}
-                fullWidth
-              />
-              {formData.KYCurl.gst && <p>{formData.KYCurl.gst}</p>}
-            </Grid>
-          </Grid>
-        )}
-        {currentStep === 3 && (
-          <Grid container spacing={4} sx={{ marginTop: 4 }}>
-            <Grid item xs={12}>
-              <TextField
-                required
-                fullWidth
-                label="Account Holder Name"
-                name="bankDetails.accountHolderName"
-                value={formData.bankDetails.accountHolderName}
-                onChange={handleChange}
-                error={Boolean(formErrors["bankDetails.accountHolderName"])}
-                helperText={
-                  formErrors["bankDetails.accountHolderName"] &&
-                  "Account Holder Name is required"
-                }
-                inputProps={{ style: { fontFamily: "lato" } }}
-                InputLabelProps={{ style: { fontFamily: "lato" } }}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                required
-                fullWidth
-                label="Account Number"
-                name="bankDetails.accountNo"
-                value={formData.bankDetails.accountNo}
-                onChange={handleChange}
-                error={Boolean(formErrors["bankDetails.accountNo"])}
-                helperText={
-                  formErrors["bankDetails.accountNo"] && "Account Number is required"
-                }
-                inputProps={{ style: { fontFamily: "lato" } }}
-                InputLabelProps={{ style: { fontFamily: "lato" } }}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                required
-                fullWidth
-                label="Bank Name"
-                name="bankDetails.bankName"
-                value={formData.bankDetails.bankName}
-                onChange={handleChange}
-                error={Boolean(formErrors["bankDetails.bankName"])}
-                helperText={
-                  formErrors["bankDetails.bankName"] && "Bank Name is required"
-                }
-                inputProps={{ style: { fontFamily: "lato" } }}
-                InputLabelProps={{ style: { fontFamily: "lato" } }}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                required
-                fullWidth
-                label="Branch Name"
-                name="bankDetails.branchName"
-                value={formData.bankDetails.branchName}
-                onChange={handleChange}
-                error={Boolean(formErrors["bankDetails.branchName"])}
-                helperText={
-                  formErrors["bankDetails.branchName"] && "Branch Name is required"
-                }
-                inputProps={{ style: { fontFamily: "lato" } }}
-                InputLabelProps={{ style: { fontFamily: "lato" } }}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                required
-                fullWidth
-                label="IFSC Code"
-                name="bankDetails.ifscCode"
-                value={formData.bankDetails.ifscCode}
-                onChange={handleChange}
-                error={Boolean(formErrors["bankDetails.ifscCode"])}
-                helperText={
-                  formErrors["bankDetails.ifscCode"] && "IFSC Code is required"
-                }
-                inputProps={{ style: { fontFamily: "lato" } }}
-                InputLabelProps={{ style: { fontFamily: "lato" } }}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <Input
-                type="file"
-                name="bankDetails.cancelledChequeURL"
-                onChange={handleChange}
-                fullWidth
-              />
-              {formData.bankDetails.cancelledChequeURL && <p>{formData.bankDetails.cancelledChequeURL}</p>}
-            </Grid>
-          </Grid>
-        )}
-        <Grid container spacing={2} sx={{ marginTop: 4 }}>
-          <Grid item xs={6}>
-            {currentStep > 0 && (
-              <Button variant="contained" color="primary" onClick={prevStep}>
-                Back
-              </Button>
-            )}
-          </Grid>
-          <Grid item xs={6} textAlign="right">
-            {currentStep < steps.length - 1 ? (
-              <Button variant="contained" color="primary" onClick={nextStep}>
-                Next
-              </Button>
-            ) : (
-              <Button
-                variant="contained"
-                color="primary"
-                type="submit"
-                disabled={loading}
-              >
-                {loading ? <CircularProgress size={24} color="warning" /> : "Submit"}
-              </Button>
-            )}
-          </Grid>
-        </Grid>
-      </form>
-    </Container>
+                {/* Bank Details */}
+                <Grid item xs={12}>
+                  <TextField
+                    required
+                    fullWidth
+                    label="Account Holder Name"
+                    name="bankDetails.accountHolderName"
+                    value={formData.bankDetails.accountHolderName}
+                    onChange={handleChange}
+                    error={Boolean(formErrors["bankDetails.accountHolderName"])}
+                    helperText={
+                      formErrors["bankDetails.accountHolderName"] &&
+                      "Account Holder Name is required"
+                    }
+                    inputProps={{ style: { fontFamily: "lato" } }}
+                    InputLabelProps={{ style: { fontFamily: "lato" } }}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    required
+                    fullWidth
+                    label="Account No"
+                    name="bankDetails.accountNo"
+                    value={formData.bankDetails.accountNo}
+                    onChange={handleChange}
+                    error={Boolean(formErrors["bankDetails.accountNo"])}
+                    helperText={
+                      formErrors["bankDetails.accountNo"] &&
+                      "Account No is required"
+                    }
+                    inputProps={{ style: { fontFamily: "lato" } }}
+                    InputLabelProps={{ style: { fontFamily: "lato" } }}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    required
+                    fullWidth
+                    label="Bank Name"
+                    name="bankDetails.bankName"
+                    value={formData.bankDetails.bankName}
+                    onChange={handleChange}
+                    error={Boolean(formErrors["bankDetails.bankName"])}
+                    helperText={
+                      formErrors["bankDetails.bankName"] &&
+                      "Bank Name is required"
+                    }
+                    inputProps={{ style: { fontFamily: "lato" } }}
+                    InputLabelProps={{ style: { fontFamily: "lato" } }}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    required
+                    fullWidth
+                    label="Branch Name"
+                    name="bankDetails.branchName"
+                    value={formData.bankDetails.branchName}
+                    onChange={handleChange}
+                    error={Boolean(formErrors["bankDetails.branchName"])}
+                    helperText={
+                      formErrors["bankDetails.branchName"] &&
+                      "Branch Name is required"
+                    }
+                    inputProps={{ style: { fontFamily: "lato" } }}
+                    InputLabelProps={{ style: { fontFamily: "lato" } }}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    required
+                    fullWidth
+                    label="IFSC Code"
+                    name="bankDetails.ifscCode"
+                    value={formData.bankDetails.ifscCode}
+                    onChange={handleChange}
+                    error={Boolean(formErrors["bankDetails.ifscCode"])}
+                    helperText={
+                      formErrors["bankDetails.ifscCode"] &&
+                      "IFSC Code is required"
+                    }
+                    inputProps={{ style: { fontFamily: "lato" } }}
+                    InputLabelProps={{ style: { fontFamily: "lato" } }}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography>
+                    Cancelled Cheque: {formData.bankDetails.cancelledChequeURL}
+                  </Typography>
+                  <Input
+                    fullWidth
+                    type="file"
+                    name="bankDetails.cancelledChequeURL"
+                    onChange={handleChange}
+                    inputProps={{ style: { fontFamily: "lato" } }}
+                  />
+                </Grid>
+
+                {/* Submit Button */}
+                <Grid item xs={12} sx={{ textAlign: "center" }}>
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                    disabled={loading}
+                  >
+                    {loading ? <CircularProgress size={24} /> : "Submit"}
+                  </Button>
+                </Grid>
+              </Grid>
+            </form>
+          </Container>
+        </Box>
+      </Box>
+    </>
   );
 };
 
