@@ -95,7 +95,7 @@ const UpdateInventroy = () => {
       const fetchedData = response.data;
       console.log("fetched data", fetchedData);
 
-      // Update the formData state with the fetched data
+     
       setFormData({
         commonDetails: {
           productCode: fetchedData.data.productCode || "",

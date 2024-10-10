@@ -34,6 +34,8 @@ import Cookies from "js-cookie";
 import Navbar from "../../components/Navbar";
 import Sidebar from "../../components/Sidebar";
 
+import axios from "axios";
+
 const theme = createTheme({
   palette: {
     primary: {
@@ -43,9 +45,8 @@ const theme = createTheme({
 });
 
 function Inventory() {
-  // const [productCategory, setProductCategory] = useState("");
   const [checked, setChecked] = useState(false);
-  const [anchorEls, setAnchorEls] = useState({}); // Array to store anchorEl for each row
+  const [anchorEls, setAnchorEls] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredData, setFilteredData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -55,28 +56,22 @@ function Inventory() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Function to fetch product data from API
     const fetchData = async () => {
       try {
         const token = Cookies.get("token");
+        console.log("tokennn", token);
 
-        // If there is a search query, include it in the API call as a query parameter
         const apiUrl = searchQuery
           ? `http://localhost:8080/product/search?name=${searchQuery}`
           : "http://localhost:8080/product/products";
 
-        const response = await fetch(apiUrl, {
+        const response = await axios.get(apiUrl, {
           headers: {
-            authorization: `${token}`, // Replace with actual token
+            Authorization: token,
           },
         });
 
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-
-        const data = await response.json();
-        setFilteredData(data);
+        setFilteredData(response.data);
         setLoading(false);
       } catch (error) {
         setError(error.message);
@@ -85,16 +80,15 @@ function Inventory() {
     };
 
     fetchData();
-  }, [searchQuery]); // Run useEffect when searchQuery changes
+  }, [searchQuery]);
 
   useEffect(() => {
-    // Function to fetch product data from API
     const fetchData = async () => {
       try {
         const token = Cookies.get("token");
         const response = await fetch("http://localhost:8080/product/products", {
           headers: {
-            authorization: `${token}`, // Replace with actual token
+            authorization: `${token}`,
           },
         });
 
@@ -152,11 +146,14 @@ function Inventory() {
 
     try {
       const token = Cookies.get("token");
-      const response = await fetch(`http://localhost:8080/product/search?name=${searchQuery}&stock=${stock}`, {
-        headers: {
-          authorization: `${token}`,
-        },
-      });
+      const response = await fetch(
+        `http://localhost:8080/product/search?name=${searchQuery}&stock=${stock}`,
+        {
+          headers: {
+            authorization: `${token}`,
+          },
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Network response was not ok");
@@ -249,7 +246,7 @@ function Inventory() {
           <div className="">
             <ThemeProvider theme={theme}>
               {/* Filter Section */}
-              
+
               <Grid container spacing={2} alignItems="center" sx={{ px: 2 }}>
                 <Grid item xs={12}>
                   {/* <Typography color="primary" sx={{ fontWeight: "bold" }}>
@@ -327,7 +324,6 @@ function Inventory() {
                     </Stack>
                   </Grid>
                 </Grid>
-
               </Grid>
               <Box height="20px" />
 

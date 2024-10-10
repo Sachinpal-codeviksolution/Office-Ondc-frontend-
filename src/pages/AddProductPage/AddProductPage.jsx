@@ -132,7 +132,7 @@ const AddProductPage = () => {
       ...prevFormData,
       commonDetails: {
         ...prevFormData.commonDetails,
-        images: [...prevFormData.commonDetails.images, ...files], // Append selected files to existing images array
+        images: [...prevFormData.commonDetails.images, ...files],
       },
     }));
   };
@@ -140,7 +140,7 @@ const AddProductPage = () => {
   const handleChangeBool = (e) => {
     const { name, value } = e.target;
   
-    // Convert the value to a boolean
+ 
     const newValue = value === 'true';
   
     setFormData((prevFormData) => ({
@@ -152,7 +152,7 @@ const AddProductPage = () => {
     }));
   };
 
-  // Remove image from the array
+
   const removeImage = (index) => {
     const newImages = [...formData.commonDetails.images];
     newImages.splice(index, 1);
@@ -215,7 +215,6 @@ const AddProductPage = () => {
         gap: "16px",
       }}
     >
-
       <div style={{ marginBottom: "16px" }}>
         <Typography variant="h6" textAlign="center"   sx={{ fontWeight: 'bold' }} >ADD PRODUCT</Typography>
       </div>
@@ -726,9 +725,9 @@ const AddProductPage = () => {
           </Grid> */}
 
           <Grid item xs={12} sm={6}>
-      <FormControl fullWidth required>
-        <InputLabel id="return-window-label">Return Window</InputLabel>
-        <Select
+          <FormControl fullWidth required>
+          <InputLabel id="return-window-label">Return Window</InputLabel>
+          <Select
           labelId="return-window-label"
           name="returnWindow"
           value={formData.commonDetails.returnWindow}
@@ -872,9 +871,6 @@ const AddProductPage = () => {
               fullWidth
             />
           </Grid>
-
-
-
           <Grid item xs={12} sm={6}>
             <TextField
               label="Nutritional Info"
@@ -885,7 +881,6 @@ const AddProductPage = () => {
               fullWidth
             />
           </Grid>
-
           <Grid item xs={12} sm={6}>
             <TextField
               label="Additive Info"
@@ -1112,7 +1107,6 @@ const AddProductPage = () => {
               onChange={handleImageChange}
             />
           </Grid>
-
           {/* Image Preview */}
           {formData.commonDetails.images.length > 0 && (
             <Grid item xs={12}>
@@ -1139,8 +1133,6 @@ const AddProductPage = () => {
               </Grid>
             </Grid>
           )}
-
-
           <Grid item xs={12}>
             <Box display="flex" justifyContent="center">
               <Button
@@ -1161,8 +1153,7 @@ const AddProductPage = () => {
       </form>
     </div>
   </Box>
-  </Box>
-  
+  </Box> 
     </>
   );
 };

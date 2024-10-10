@@ -25,6 +25,7 @@ import Store from './pages/Store/Store';
 import UpdateInventroy from './pages/AddProductPage/UpdateInventroy';
 import UpdateMultiStepForm from './pages/MultiStepForm/UpdateMultiStepForm';
 import UpdateStore from './pages/Store/UpdateStore';
+import Mappls from './pages/Map/Mappls';
 function App() {
   const  {isAuthenticated }= useAuth();
   return (
@@ -37,6 +38,7 @@ function App() {
           <Route path="/multistepform" element={<MultiStepForm/>} />
           <Route path="/Updatemultistepform" element={<UpdateMultiStepForm/>} />
           <Route path="/Updatestore" element={<UpdateStore/>} />
+          <Route path="/map" element={<Mappls/>} />
           
           {isAuthenticated ? (
             <>

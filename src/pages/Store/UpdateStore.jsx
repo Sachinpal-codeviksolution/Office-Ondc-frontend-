@@ -606,7 +606,7 @@ console.log("line no. 325",storePayload)
           <Grid item xs={12}>
             <FormControl component="fieldset">
               <FormLabel component="legend">
-                Default Cancellable Setting
+                 Cancellable 
               </FormLabel>
               <RadioGroup
                 row
@@ -631,7 +631,7 @@ console.log("line no. 325",storePayload)
           <Grid item xs={12}>
             <FormControl component="fieldset">
               <FormLabel component="legend">
-                Default Returnable Setting
+               Returnable 
               </FormLabel>
               <RadioGroup
                 row
@@ -807,7 +807,6 @@ console.log("line no. 325",storePayload)
             <Typography variant="h5" gutterBottom>
               Store Timing
             </Typography>
-
             <Grid item xs={12}>
               <FormControl component="fieldset" fullWidth>
                 <FormLabel component="legend" sx={{ fontWeight: "bold" }}>

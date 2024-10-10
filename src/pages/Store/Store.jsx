@@ -505,7 +505,7 @@ export default function Store() {
           <Grid item xs={12}>
             <FormControl component="fieldset">
               <FormLabel component="legend">
-                Default Cancellable Setting
+              Cancellable 
               </FormLabel>
               <RadioGroup
                 row
@@ -530,7 +530,7 @@ export default function Store() {
           <Grid item xs={12}>
             <FormControl component="fieldset">
               <FormLabel component="legend">
-                Default Returnable Setting
+                 Returnable 
               </FormLabel>
               <RadioGroup
                 row
