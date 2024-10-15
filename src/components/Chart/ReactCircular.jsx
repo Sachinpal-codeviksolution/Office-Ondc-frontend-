@@ -6,7 +6,7 @@ import { CircularProgressbar } from 'react-circular-progressbar';
 export default function ReactCircular({ value, text }) {
   return (
     <>
-      <Card sx={{ minWidth: "49%", height: 145 }}>
+      <Card sx={{ minWidth: "49%", height: 160 }}>
         <div style={{ width: 100, height: 100, margin: 20 }}>
           <CircularProgressbar value={value} text={`${text}%`} />
         </div>

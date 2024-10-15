@@ -13,78 +13,76 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 import MailIcon from "@mui/icons-material/Mail";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import MoreIcon from "@mui/icons-material/MoreVert";
+import TextField from "@mui/material/TextField"; 
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
-import { useEffect, useState } from "react"
+import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import useAppStore from "../AppStore";
 
-const AppBar = styled(MuiAppBar)(({ theme }) => ({
-  backgroundColor: "#1976d2",
+const AppBar = styled(MuiAppBar)(({ theme, drawerOpen }) => ({
+  backgroundColor: "#e6e5f2",
   zIndex: theme.zIndex.drawer + 1,
+  width: drawerOpen ? "85.8%" : "100%", // Adjust width based on drawer state
+  color: "black",
+  boxShadow: 'none',
+  transition: 'width 0.3s ease' // Smooth transition
 }));
 
-export default function Navbar() {
-  const api = process.env.REACT_APP_API
+export default function Navbar({ title }) {
+  const api = process.env.REACT_APP_API;
   const navigate = useNavigate();  
-  const [decodeToken,setDecodeToken]= useState([])
+  const [decodeToken, setDecodeToken] = useState([]);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
+  const [searchQuery, setSearchQuery] = useState(""); 
   const updateOpen = useAppStore((state) => state.updateOpen);
   const dopen = useAppStore((state) => state.dopen);
 
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
 
- 
-
- useEffect(()=>{
-  const token = Cookies.get('token')
-  setDecodeToken(jwtDecode(token))
- },[])
- 
- const {email_id}=decodeToken
-  
-   
-
- const handleLogout = async (e) => {
-  e.preventDefault();
-  
-  try {
-    const token = Cookies.get("token");
-    // const response = await fetch("https://stage.ramonize.com/dashboard/logout",
-      const response = await fetch(`${api}logout` 
-        ,{
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": token
-      },
-      body: JSON.stringify({ email: email_id})
-    });
-
-    const Data = await response.json();
-    console.log(Data);
-
-    if (Data.success === true) {
-      Cookies.remove("token");
-      navigate("/");
-    } else {
-      console.log("Logout failed");
+  useEffect(() => {
+    const token = Cookies.get('token');
+    if (token) {
+      setDecodeToken(jwtDecode(token));
     }
-  } catch (error) {
-    console.error("Logout error:", error);
-  }
-};
+  }, []);
+
+  const { email_id } = decodeToken;
+
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
+  };
+
+  const handleLogout = async (e) => {
+    e.preventDefault();
+    try {
+      const token = Cookies.get("token");
+      const response = await fetch(`${api}logout`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": token,
+        },
+        body: JSON.stringify({ email: email_id })
+      });
+
+      const Data = await response.json();
+      if (Data.success) {
+        Cookies.remove("token");
+        navigate("/");
+      } else {
+        console.log("Logout failed");
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
+
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
   };
-  const handleUpdate = ()=>{
-    navigate("/Updatemultistepform")
-  }
-  const handleUpdateStore =()=>{
-    navigate("/Updatestore")
-  }
 
   const handleMobileMenuClose = () => {
     setMobileMoreAnchorEl(null);
@@ -99,39 +97,23 @@ export default function Navbar() {
     setMobileMoreAnchorEl(event.currentTarget);
   };
 
-   
   const menuId = "primary-search-account-menu";
   const renderMenu = (
     <Menu
       anchorEl={anchorEl}
-      anchorOrigin={{
-        vertical: "top",
-        horizontal: "right",
-      }}
+      anchorOrigin={{ vertical: "top", horizontal: "right" }}
       id={menuId}
       keepMounted
-      transformOrigin={{
-        vertical: "top",
-        horizontal: "right",
-      }}
+      transformOrigin={{ vertical: "top", horizontal: "right" }}
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
       <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
       <MenuItem onClick={handleMenuClose}>My account</MenuItem>
       <MenuItem onClick={handleLogout}>Logout</MenuItem>
-      <MenuItem onClick={handleUpdate}>Update Info</MenuItem>
-      <MenuItem onClick={handleUpdateStore}>Update Store </MenuItem>
-
-
-     
-      <MenuItem
-        onClick={() => {
-          navigate("/register");
-        }}
-      >
-        Add+
-      </MenuItem>
+      <MenuItem onClick={() => navigate("/Updatemultistepform")}>Update Info</MenuItem>
+      <MenuItem onClick={() => navigate("/Updatestore")}>Update Store</MenuItem>
+      <MenuItem onClick={() => navigate("/register")}>Add+</MenuItem>
     </Menu>
   );
 
@@ -139,16 +121,10 @@ export default function Navbar() {
   const renderMobileMenu = (
     <Menu
       anchorEl={mobileMoreAnchorEl}
-      anchorOrigin={{
-        vertical: "top",
-        horizontal: "right",
-      }}
+      anchorOrigin={{ vertical: "top", horizontal: "right" }}
       id={mobileMenuId}
       keepMounted
-      transformOrigin={{
-        vertical: "top",
-        horizontal: "right",
-      }}
+      transformOrigin={{ vertical: "top", horizontal: "right" }}
       open={isMobileMenuOpen}
       onClose={handleMobileMenuClose}
     >
@@ -161,11 +137,7 @@ export default function Navbar() {
         <p>Messages</p>
       </MenuItem>
       <MenuItem>
-        <IconButton
-          size="large"
-          aria-label="show 17 new notifications"
-          color="inherit"
-        >
+        <IconButton size="large" aria-label="show 17 new notifications" color="inherit">
           <Badge badgeContent={17} color="error">
             <NotificationsIcon />
           </Badge>
@@ -189,14 +161,14 @@ export default function Navbar() {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="fixed">
+      <AppBar position="fixed" drawerOpen={dopen}>
         <Toolbar>
           <IconButton
             size="large"
             edge="start"
             color="inherit"
             aria-label="open drawer"
-            sx={{ ml: 2, mr: 2 }}
+            sx={{ mr: 2 }}
             onClick={() => updateOpen(!dopen)}
           >
             <MenuIcon />
@@ -207,24 +179,24 @@ export default function Navbar() {
             component="div"
             sx={{ display: { xs: "none", sm: "block" } }}
           >
-            MUI
+            {title}
           </Typography>
           <Box sx={{ flexGrow: 1 }} />
+          <TextField
+            variant="outlined"
+            size="small"
+            placeholder="Search..."
+            value={searchQuery}
+            onChange={handleSearchChange}
+            sx={{ mr: 2, bgcolor: "white" }}
+          />
           <Box sx={{ display: { xs: "none", md: "flex" } }}>
-            <IconButton
-              size="large"
-              aria-label="show 4 new mails"
-              color="inherit"
-            >
+            <IconButton size="large" aria-label="show 4 new mails" color="inherit">
               <Badge badgeContent={4} color="error">
                 <MailIcon />
               </Badge>
             </IconButton>
-            <IconButton
-              size="large"
-              aria-label="show 17 new notifications"
-              color="inherit"
-            >
+            <IconButton size="large" aria-label="show 17 new notifications" color="inherit">
               <Badge badgeContent={17} color="error">
                 <NotificationsIcon />
               </Badge>
@@ -250,8 +222,6 @@ export default function Navbar() {
               onClick={handleMobileMenuOpen}
               color="inherit"
             >
-            
-            
               <MoreIcon />
             </IconButton>
           </Box>

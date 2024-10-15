@@ -3,7 +3,7 @@ import React from "react";
 
 export default function Cards({ Icon, text, text2 }) {
   return (
-    <Card sx={{ minWidth: "49%", height: 145 }}>
+    <Card sx={{ minWidth: "49%", height: 150  }}>
       <CardContent>
         {Icon}
         <Typography gutterBottom variant="h5" component="div">

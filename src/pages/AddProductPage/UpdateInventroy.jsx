@@ -13,9 +13,6 @@ import {
   Grid,
   InputLabel,
   Typography,
-  // Card,
-  // CardMedia,
-  // IconButton,
   CircularProgress,
   Box,
 } from "@mui/material";
@@ -286,11 +283,16 @@ const UpdateInventroy = () => {
 
   return (
     <>
-      <Navbar />
+      <Navbar title="Update Product " />
       <Box height="30px" />
       <Box sx={{ display: "flex" }}>
         <Sidebar />
-        <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+        <Box component="main" sx={{ flexGrow: 1, p: 3 ,
+          backgroundColor: "#fafafb", 
+            position: "relative", 
+            boxShadow: "inset 2px 0 19px -10px rgba(0, 0, 0, 0.5)", 
+            paddingTop: "40px" ,
+            minHeight:"100vh"}}>
           <div
             style={{
               padding: "16px",

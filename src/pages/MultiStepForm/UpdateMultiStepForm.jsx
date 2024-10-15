@@ -234,7 +234,12 @@ const UpdateMultiStepForm = () => {
       <Box height="50px" />
       <Box sx={{ display: "flex" }}>
         <Sidebar />
-        <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+        <Box component="main" sx={{ flexGrow: 1, p: 3,
+          backgroundColor: "#fafafb", 
+            position: "relative", 
+            boxShadow: "inset 2px 0 19px -10px rgba(0, 0, 0, 0.5)", 
+            paddingTop: "40px" ,
+            minHeight:"100vh" }}>
           <Container>
             <Typography
               align="center"

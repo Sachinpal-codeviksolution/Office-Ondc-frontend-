@@ -45,7 +45,7 @@ export default function ProfileMenu() {
         open={open}
         onClose={handleClose}
         onClick={handleClose}
-        PaperProps={{
+        PaperProps ={{
           elevation: 0,
           sx: {
             overflow: 'visible',

@@ -186,7 +186,7 @@ const AddProductPage = () => {
 
       const data = await response.json();
       console.log("data ", data);
-
+        toast(data.message)
       if (data.success === true) {
         toast.success("Successfully added");
         console.log("Successfully added");
@@ -201,12 +201,18 @@ const AddProductPage = () => {
 
   return (
     <>
-  <Navbar/>
+  <Navbar title="Add Product"/>
   {/* <Box height={60} /> */}
   <Box height="30px" />
   <Box sx={{ display: "flex" }}>
   <Sidebar />
-  <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+  <Box component="main" sx={{ flexGrow: 1, p: 3,
+  
+            backgroundColor: "#fafafb", 
+            position: "relative", 
+            boxShadow: "inset 2px 0 19px -10px rgba(0, 0, 0, 0.5)", 
+            paddingTop: "40px" ,
+            minHeight:"100vh" }}>
   <div
       style={{
         padding: "16px",
@@ -236,7 +242,7 @@ const AddProductPage = () => {
       </div>
 
       <form onSubmit={handleSubmit}>
-        <Grid container spacing={3}>
+        <Grid container spacing={3}>  
           <Grid item xs={12} sm={6}>
             <TextField
               label="Product Code"

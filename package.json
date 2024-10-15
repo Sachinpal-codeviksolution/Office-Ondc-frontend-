@@ -9,6 +9,8 @@
     "@mui/icons-material": "^5.16.4",
     "@mui/material": "^5.16.4",
     "axios": "^1.7.2",
+    "highcharts": "^11.4.8",
+    "highcharts-react-official": "^3.2.1",
     "js-cookie": "^3.0.5",
     "jwt-decode": "^4.0.0",
     "mappls-web-maps": "^3.5.7",
